@@ -338,10 +338,12 @@ const success = ref('');
 const imagePreview = ref('');
 const fileInput = ref(null);
 
-const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useQuery({
+const { data: categoriesData, isLoading: categoriesLoading, error: categoriesError } = useQuery({
   queryKey: ['categories'],
   queryFn: () => CategoryService.getCategories(),
 });
+
+const categories = computed(() => categoriesData.value?.data || []);
 
 const canSave = computed(() => {
   return values.title?.trim() && values.content?.trim();
