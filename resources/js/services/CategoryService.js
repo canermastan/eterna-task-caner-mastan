@@ -3,7 +3,7 @@ import api from './api';
 class CategoryService {
     async getCategories() {
         const response = await api.get('/categories');
-        return response.data;
+        return response.data.data || response.data; 
     }
 
     async createCategory(categoryData) {
