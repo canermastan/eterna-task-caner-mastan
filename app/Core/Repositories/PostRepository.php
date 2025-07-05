@@ -5,11 +5,9 @@ namespace App\Core\Repositories;
 use App\Core\Contracts\PostRepositoryInterface;
 use App\Core\Data\Dtos\Post\TogglePublishStatusDto;
 use App\Core\Data\Dtos\Post\UpdatePostDto;
-use App\Core\Enums\PostStatus;
 use App\Models\Post;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Carbon;
 
 class PostRepository implements PostRepositoryInterface
 {
@@ -85,9 +83,8 @@ class PostRepository implements PostRepositoryInterface
         return $post;
     }
 
-    public function update(int $id, UpdatePostDto $updatePostDto): Post
+    public function updateFromDto(Post $post, UpdatePostDto $updatePostDto): Post
     {
-        $post = $this->getByIdWithUserAndCategory($id);
         $updateData = $updatePostDto->toUpdateArray();
 
         if (!empty($updateData)) {

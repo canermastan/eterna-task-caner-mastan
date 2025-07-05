@@ -32,7 +32,7 @@ interface PostRepositoryInterface
 
     public function toggleDraftPublished(TogglePublishStatusDto $dto): Post;
 
-    public function update(int $id, UpdatePostDto $updatePostDto): Post;
+    public function updateFromDto(Post $post, UpdatePostDto $updatePostDto): Post;
 
     public function delete(int $id): void;
 

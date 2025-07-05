@@ -112,8 +112,9 @@ class PostService
         // if user is a writer, we need to set the status to draft again and set the published_at to null
         $updatePostDto->status = $this->determineStatus($user);
         $updatePostDto->published_at = $updatePostDto->status === PostStatus::DRAFT ? null : now();
-
-        $post = $this->postRepository->update($id, $updatePostDto);
+        
+        $postDb = $this->postRepository->getById($id);
+        $post = $this->postRepository->updateFromDto($postDb, $updatePostDto);
 
         if ($updatePostDto->coverImage && $updatePostDto->coverImage->isValid()) {
             $post->addMedia($updatePostDto->coverImage->getPathname())
