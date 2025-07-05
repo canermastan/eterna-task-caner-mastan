@@ -2,9 +2,11 @@
 
 namespace App\Core\Services;
 
+use App\Core\Constants\Cache;
 use App\Core\Contracts\CategoryRepositoryInterface;
 use App\Core\Data\Resources\CategoryResource;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Cache as CacheFacade;
 use Illuminate\Support\Str;
 
 class CategoryService
@@ -15,7 +17,9 @@ class CategoryService
 
     public function getAll(): AnonymousResourceCollection
     {
-        return CategoryResource::collection($this->categoryRepository->getAll());
+        return CacheFacade::remember(Cache::KEY_CATEGORIES_ALL, Cache::getTTL('very_long'), function () {
+            return CategoryResource::collection($this->categoryRepository->getAll());
+        });
     }
 
     public function create(string $name): CategoryResource
@@ -24,6 +28,8 @@ class CategoryService
             'name' => $name,
             'slug' => Str::slug($name),
         ]);
+        
+        $this->clearCache();
         return new CategoryResource($category);
     }
 
@@ -33,11 +39,20 @@ class CategoryService
             'name' => $name,
             'slug' => Str::slug($name),
         ]);
+        
+        $this->clearCache();
         return new CategoryResource($category);
     }
 
     public function delete(int $id): void
     {
         $this->categoryRepository->delete($id);
+        $this->clearCache();
+    }
+
+    private function clearCache(): void
+    {
+        CacheFacade::forget(Cache::KEY_CATEGORIES_ALL);
+        CacheFacade::tags([Cache::TAG_CATEGORIES])->flush();
     }
 }
