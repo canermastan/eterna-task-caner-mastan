@@ -97,12 +97,23 @@ export default function useComments(postIdRef, isAdminRef, currentUserRef) {
           // It's a reply - add to parent's children
           const parentIndex = old.data.findIndex(c => c.id === newComment.parent_id);
           if (parentIndex !== -1) {
-            // Check for duplicates in children
+            // Check for duplicates in children (including optimistic ones)
             const existingChild = old.data[parentIndex].children?.find(child => 
-              child.id === newComment.id
+              child.id === newComment.id || (child.isOptimistic && child.content === newComment.content)
             );
             if (existingChild) {
-              return old;
+              // If optimistic comment exists, replace it with real data
+              if (existingChild.isOptimistic) {
+                const updatedData = [...old.data];
+                updatedData[parentIndex] = {
+                  ...updatedData[parentIndex],
+                  children: updatedData[parentIndex].children.map(child =>
+                    child.id === existingChild.id ? { ...newComment, isOptimistic: false } : child
+                  )
+                };
+                return { ...old, data: updatedData };
+              }
+              return old; // Real comment already exists
             }
             
             const updatedData = [...old.data];
@@ -125,12 +136,19 @@ export default function useComments(postIdRef, isAdminRef, currentUserRef) {
           }
         } else {
           // It's a root comment - add to main list
-          // prevent duplicates
+          // Check for duplicates (including optimistic ones)
           const existingComment = old.data.find(c => 
-            c.id === newComment.id
+            c.id === newComment.id || (c.isOptimistic && c.content === newComment.content)
           );
           if (existingComment) {
-            return old;
+            // If optimistic comment exists, replace it with real data
+            if (existingComment.isOptimistic) {
+              const updatedData = old.data.map(comment =>
+                comment.id === existingComment.id ? { ...newComment, isOptimistic: false } : comment
+              );
+              return { ...old, data: updatedData };
+            }
+            return old; // Real comment already exists
           }
           
           return {
