@@ -76,7 +76,7 @@ class CommentRepository implements CommentRepositoryInterface
             'content' => $createDto->content,
             'status' => $status,
             'parent_id' => $createDto->parentId,
-        ]);
+        ]) ?? throw new \Exception('Failed to create comment');
     }
 
     public function updateFromDto(Comment $comment, UpdateCommentDto $updateDto): Comment
