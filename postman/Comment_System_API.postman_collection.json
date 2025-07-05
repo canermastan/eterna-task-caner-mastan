@@ -1,0 +1,387 @@
+{
+	"info": {
+		"_postman_id": "comment-system-api",
+		"name": "Comment System API with Sanctum Auth",
+		"description": "Laravel Comment System API endpoints with Sanctum authentication",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "comment-system"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Accept", "value": "application/json"}
+						],
+											"body": {
+						"mode": "raw",
+						"raw": "{\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"phone\": \"05551234570\",\n    \"email\": \"testuser2@example.com\",\n    \"password\": \"TestPassword123!@#\",\n    \"password_confirmation\": \"TestPassword123!@#\",\n    \"device_name\": \"Postman Client\"\n}"
+					},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.environment.set('auth_token', jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Accept", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"admin@example.com\",\n    \"password\": \"password\",\n    \"device_name\": \"Postman Admin\",\n    \"remember\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login Yazar",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.environment.set('auth_token', jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Accept", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"yazar@example.com\",\n    \"password\": \"password\",\n    \"device_name\": \"Postman Yazar\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login with Phone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.environment.set('auth_token', jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Accept", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"login\": \"05551234567\",\n    \"password\": \"password\",\n    \"device_name\": \"Postman Phone Login\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.environment.set('auth_token', jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "refresh"]
+						}
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "logout"]
+						}
+					}
+				},
+				{
+					"name": "Logout All Devices",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout-all",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "logout-all"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get Approved Comments (Public)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments/approved",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "approved"]
+						}
+					}
+				},
+				{
+					"name": "Get All Comments (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments?per_page=10&status=pending",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments"],
+							"query": [
+								{"key": "per_page", "value": "10"},
+								{"key": "status", "value": "pending"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Comment",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Accept", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Bu harika bir yorum sistemi! Çok beğendim.\",\n    \"parent_id\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments"]
+						}
+					}
+				},
+				{
+					"name": "Create Reply",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"},
+							{"key": "Accept", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Kesinlikle katılıyorum! Harika bir sistem.\",\n    \"parent_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments"]
+						}
+					}
+				},
+				{
+					"name": "Get Pending Comments (Moderator)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments/pending",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "pending"]
+						}
+					}
+				},
+				{
+					"name": "Get My Comments",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments/my-comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "my-comments"]
+						}
+					}
+				},
+				{
+					"name": "Approve Comment (Admin/Moderator)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "PATCH",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments/1/approve",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "1", "approve"]
+						}
+					}
+				},
+				{
+					"name": "Reject Comment (Admin/Moderator)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "PATCH",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments/1/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "1", "reject"]
+						}
+					}
+				},
+				{
+					"name": "Delete Comment (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "DELETE",
+						"header": [{"key": "Accept", "value": "application/json"}],
+						"url": {
+							"raw": "{{base_url}}/api/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "comments", "1"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://localhost:8000", "type": "string"},
+		{"key": "auth_token", "value": "", "type": "string"}
+	]
+} 
