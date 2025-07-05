@@ -19,7 +19,7 @@ class CategoryRepository implements CategoryRepositoryInterface
 
     public function create(array $data): Category
     {
-        return $this->model->create($data);
+        return $this->model->create($data) ?? throw new \Exception('Failed to create category');
     }
 
     public function update(int $id, array $data): Category
