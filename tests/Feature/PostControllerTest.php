@@ -5,6 +5,7 @@ use App\Models\Post;
 use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Support\Facades\Config;
 
 uses(RefreshDatabase::class);
 
@@ -13,6 +14,8 @@ beforeEach(function () {
     
     $this->user = User::factory()->create(['role_id' => 1]);
     $this->category = Category::factory()->create();
+
+    Config::set('broadcasting.default', 'dummy');
 });
 
 it('can get posts list', function () {
@@ -88,7 +91,6 @@ it('can create a post', function () {
         'title' => 'Test Post',
         'content' => 'This is a test post',
         'slug' => 'test-post',
-        'coverImage' => 'test-image.jpg',
         'categoryIds' => [$this->category->id],
     ]);
     $response->assertCreated();

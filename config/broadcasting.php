@@ -76,6 +76,10 @@ return [
         'null' => [
             'driver' => 'null',
         ],
+        
+        'dummy' => [
+            'driver' => 'null',
+        ]
 
     ],
 
