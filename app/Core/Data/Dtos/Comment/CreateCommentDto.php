@@ -2,7 +2,7 @@
 
 namespace App\Core\Data\Dtos\Comment;
 
-use App\Core\Data\Requests\CommentCreateRequest;
+use App\Core\Data\Requests\Comment\StoreCommentRequest;
 use Spatie\LaravelData\Data;
 
 class CreateCommentDto extends Data
@@ -13,7 +13,7 @@ class CreateCommentDto extends Data
         public ?int $parentId = null,
     ) {}
 
-    public static function fromRequest(CommentCreateRequest $request): self
+    public static function fromRequest(StoreCommentRequest $request): self
     {
         return self::from([
             'postId' => $request->post_id,
@@ -21,4 +21,4 @@ class CreateCommentDto extends Data
             'parentId' => $request->parent_id,
         ]);
     }
-} 
+}

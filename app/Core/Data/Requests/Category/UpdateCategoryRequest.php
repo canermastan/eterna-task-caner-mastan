@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Core\Data\Requests;
+namespace App\Core\Data\Requests\Category;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CategoryUpdateRequest extends FormRequest
+class UpdateCategoryRequest extends FormRequest
 {
     public function rules(): array
     {

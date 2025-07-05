@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Core\Data\Requests\CategoryStoreRequest;
-use App\Core\Data\Requests\CategoryUpdateRequest;
+use App\Core\Data\Requests\Category\StoreCategoryRequest;
+use App\Core\Data\Requests\Category\UpdateCategoryRequest;
 use App\Core\Services\CategoryService;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
@@ -26,7 +26,7 @@ class CategoryController extends Controller
         return $this->successResponse($categories, 'Categories fetched successfully', Response::HTTP_OK);
     }
 
-    public function store(CategoryStoreRequest $request): JsonResponse
+    public function store(StoreCategoryRequest $request): JsonResponse
     {
         $this->authorize('create', Category::class);
 
@@ -34,7 +34,7 @@ class CategoryController extends Controller
         return $this->successResponse($category, 'Category created successfully', Response::HTTP_CREATED);
     }
 
-    public function update(CategoryUpdateRequest $request, int $id): JsonResponse
+    public function update(UpdateCategoryRequest $request, int $id): JsonResponse
     {
         $this->authorize('update', Category::class);
 

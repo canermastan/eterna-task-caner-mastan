@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Core\Data\Dtos\Comment\CreateCommentDto;
 use App\Core\Data\Dtos\Comment\UpdateCommentDto;
-use App\Core\Data\Requests\CommentCreateRequest;
-use App\Core\Data\Requests\CommentUpdateRequest;
+use App\Core\Data\Requests\Comment\StoreCommentRequest;
+use App\Core\Data\Requests\Comment\UpdateCommentRequest;
 use App\Core\Data\Resources\CommentResource;
 use App\Core\Enums\CommentStatus;
 use App\Core\Services\CommentService;
@@ -53,7 +53,7 @@ class CommentController extends Controller
         ]);
     }
 
-    public function store(CommentCreateRequest $request): JsonResponse
+    public function store(StoreCommentRequest $request): JsonResponse
     {
         $this->authorize('create', Comment::class);
 
@@ -67,7 +67,7 @@ class CommentController extends Controller
         );
     }
 
-    public function update(CommentUpdateRequest $request, Comment $comment): JsonResponse
+    public function update(UpdateCommentRequest $request, Comment $comment): JsonResponse
     {
         $this->authorize('update', $comment);
 

@@ -10,8 +10,10 @@ use App\Core\Repositories\CategoryRepository;
 use App\Core\Repositories\CommentRepository;
 use App\Core\Repositories\PostRepository;
 use App\Core\Services\Policies\PolicyAuthorizationService;
+use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Policies\CategoryPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\PostPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -31,6 +33,6 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Post::class, PostPolicy::class);
         Gate::policy(Comment::class, CommentPolicy::class);
-        Gate::policy(\App\Models\Category::class, \App\Policies\CategoryPolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
     }
 }
