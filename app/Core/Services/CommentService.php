@@ -3,6 +3,7 @@
 namespace App\Core\Services;
 
 use App\Core\Contracts\CommentRepositoryInterface;
+use App\Core\Contracts\PostRepositoryInterface;
 use App\Core\Data\Dtos\Comment\CreateCommentDto;
 use App\Core\Data\Dtos\Comment\UpdateCommentDto;
 use App\Core\Data\Resources\CommentResource;
@@ -17,7 +18,8 @@ use Illuminate\Support\Facades\Cache;
 class CommentService
 {
     public function __construct(
-        private CommentRepositoryInterface $commentRepository
+        private CommentRepositoryInterface $commentRepository,
+        private PostRepositoryInterface $postRepository
     ) {}
 
     public function getPaginatedComments(int $perPage = 15, array $filters = []): LengthAwarePaginator
@@ -27,13 +29,14 @@ class CommentService
 
     public function createComment(CreateCommentDto $createDto, User $user): CommentResource
     {
-        $status = $this->determineInitialStatus($user);
+        $post = $this->postRepository->getById($createDto->postId);
 
+        $status = $this->determineInitialStatus($user);
         $comment = $this->commentRepository->createFromDto($createDto, $user->id, $status);
 
         if ($comment->status === 'approved') {
-            $comment->load(['user', 'post']);
-            CommentCreated::dispatch($comment, $comment->post);
+            $comment->load(['user']);
+            CommentCreated::dispatch($comment, $post);
         }
 
         $this->clearCommentsCache();
