@@ -66,7 +66,7 @@ class CommentService
 
         if ($result) {
             $comment->load(['user', 'post']);
-            CommentDeleted::dispatch($comment, $comment->post);
+            CommentDeleted::dispatch($comment->id, $comment->post->id);
 
             $this->clearCommentsCache();
         }
