@@ -22,12 +22,14 @@ class PostService {
     }
 
     async createPost(postData) {
-        const response = await api.post('/posts', postData, this.formDataConfig(postData));
+        const config = this.formDataConfig(postData);
+        const response = await api.post('/posts', postData, config);
         return response.data;
     }
 
     async updatePost(id, postData) {
-        const response = await api.post(`/posts/${id}`, postData, this.formDataConfig(postData));
+        const config = this.formDataConfig(postData);
+        const response = await api.post(`/posts/${id}`, postData, config);
         return response.data;
     }
 
@@ -64,7 +66,7 @@ class PostService {
         return response.data;
     }
 
-    async formDataConfig(postData) {
+    formDataConfig(postData) {
         const isFormData = postData instanceof FormData;
         return isFormData ? {
             headers: {
