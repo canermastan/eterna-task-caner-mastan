@@ -907,21 +907,24 @@ const submitComment = async () => {
     
     if (shouldShowOptimistic) {
       if (realComment.status === 'approved') {
-        // Remove optimistic comment, Echo event will add the real one
+        // For approved comments, replace optimistic with real data immediately
+        // Don't wait for Echo event to avoid flickering
         const currentDataAfter = queryClient.getQueryData(['comments', 'post', postId.value]);
         
         if (currentDataAfter) {
           const updatedData = {
             ...currentDataAfter,
-            data: currentDataAfter.data.filter(comment => comment.id !== optimisticComment.id),
-            pagination: {
-              ...currentDataAfter.pagination,
-              total: currentDataAfter.pagination.total - 1
-            }
+            data: currentDataAfter.data.map(comment => 
+              comment.id === optimisticComment.id ? { 
+                ...realComment, 
+                children: [],
+                isOptimistic: false 
+              } : comment
+            )
           };
           
           queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-          console.log('✅ Optimistic comment removed, waiting for Echo event');
+          console.log('✅ Approved comment updated with real data');
         }
       } else {
         // For pending comments, replace optimistic with real data
@@ -1050,22 +1053,19 @@ const submitReply = async (parentComment) => {
         const parentIndex = currentDataAfter.data.findIndex(c => c.id === parentComment.id);
         if (parentIndex !== -1) {
           if (realReply.status === 'approved') {
-            // Remove optimistic reply, Echo event will add the real one
+            // For approved replies, replace optimistic with real data immediately
+            // Don't wait for Echo event to avoid flickering
             const updatedData = { ...currentDataAfter };
             updatedData.data = [...updatedData.data];
             updatedData.data[parentIndex] = {
               ...updatedData.data[parentIndex],
-              children: updatedData.data[parentIndex].children.filter(
-                child => child.id !== optimisticReply.id
+              children: updatedData.data[parentIndex].children.map(child =>
+                child.id === optimisticReply.id ? { ...realReply, isOptimistic: false } : child
               )
-            };
-            updatedData.pagination = {
-              ...updatedData.pagination,
-              total: updatedData.pagination.total - 1
             };
             
             queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-            console.log('✅ Optimistic reply removed, waiting for Echo event');
+            console.log('✅ Approved reply updated with real data');
           } else {
             // For pending replies, replace optimistic with real data
             const updatedData = { ...currentDataAfter };

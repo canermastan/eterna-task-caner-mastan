@@ -97,10 +97,9 @@ export default function useComments(postIdRef, isAdminRef, currentUserRef) {
           // It's a reply - add to parent's children
           const parentIndex = old.data.findIndex(c => c.id === newComment.parent_id);
           if (parentIndex !== -1) {
-            // Check for duplicates in children (including optimistic ones)
+            // Check for duplicates in children
             const existingChild = old.data[parentIndex].children?.find(child => 
-              child.id === newComment.id || 
-              (child.isOptimistic && child.content === newComment.content && child.user?.id === newComment.user?.id)
+              child.id === newComment.id
             );
             if (existingChild) {
               return old;
@@ -126,10 +125,9 @@ export default function useComments(postIdRef, isAdminRef, currentUserRef) {
           }
         } else {
           // It's a root comment - add to main list
-          // prevent duplicates (including optimistic ones)
+          // prevent duplicates
           const existingComment = old.data.find(c => 
-            c.id === newComment.id || 
-            (c.isOptimistic && c.content === newComment.content && c.user?.id === newComment.user?.id)
+            c.id === newComment.id
           );
           if (existingComment) {
             return old;
