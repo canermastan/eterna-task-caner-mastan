@@ -33,8 +33,6 @@ class PostController extends Controller
 
     public function show(int $id): JsonResponse
     {
-        $this->authorize('view', $this->postService->getRawPostById($id));
-
         $post = $this->postService->getById($id);
         return $this->successResponse($post, 'Post fetched successfully');
     }
