@@ -55,7 +55,10 @@ class PostRepository implements PostRepositoryInterface
 
     public function getByUserIdWithPagination(int $userId): LengthAwarePaginator
     {
-        return $this->model->where('user_id', $userId)->paginate(10);
+        return $this->model->with(['categories', 'user'])
+                          ->where('user_id', $userId)
+                          ->orderBy('created_at', 'desc')
+                          ->paginate(10);
     }   
 
     public function getAllForAdmin(): Collection
