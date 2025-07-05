@@ -131,4 +131,12 @@ class RegisterRequest extends FormRequest
 
         return $validated;
     }
+
+    /**
+     * Get the throttle key for rate limiting.
+     */
+    public function throttleKey(): string
+    {
+        return strtolower($this->string('email') . '|' . $this->ip());
+    }
 }

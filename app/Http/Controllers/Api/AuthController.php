@@ -21,8 +21,19 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
+        $throttleKey = $request->throttleKey();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            return $this->errorResponse(
+                "Too many registration attempts. Please try again in {$seconds} seconds.",
+                429
+            );
+        }
+
         try {
-            return DB::transaction(function () use ($request) {
+            $result = DB::transaction(function () use ($request) {
                 $userData = $request->validated();
                 $user = User::create($userData);
 
@@ -37,7 +48,7 @@ class AuthController extends Controller
                     'user_agent' => $request->userAgent(),
                 ]);
 
-                return $this->successResponse([
+                return [
                     'user' => [
                         'id' => $user->id,
                         'first_name' => $user->first_name,
@@ -50,10 +61,16 @@ class AuthController extends Controller
                         'created_at' => $user->created_at,
                     ],
                     'token' => $token,
-                ], 'Account created and logged in successfully');
+                ];
             });
 
+            RateLimiter::clear($throttleKey);
+
+            return $this->successResponse($result, 'Account created and logged in successfully');
+
         } catch (\Exception $e) {
+            RateLimiter::hit($throttleKey, 300); // 5 minutes lockout
+
             Log::error('User registration failed', [
                 'email' => $request->input('email'),
                 'phone' => $request->input('phone'),

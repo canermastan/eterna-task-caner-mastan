@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Route;
 // ==================== AUTH ROUTES ====================
 Route::prefix('auth')->group(function () {
     // Public auth routes
-    Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
+        Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
+        Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
     // Protected auth routes (requires Sanctum authentication)
     Route::middleware('auth:sanctum')->group(function () {
@@ -35,7 +35,7 @@ Route::prefix('auth')->group(function () {
 Route::get('/categories', [CategoryController::class, 'index']);
 
 // Admin-only category routes (protected)
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::prefix('categories')->group(function () {
         Route::post('/', [CategoryController::class, 'store']);
         Route::put('/{id}', [CategoryController::class, 'update']);
@@ -45,7 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ==================== POST ROUTES ====================
 // Protected post routes (requires authentication) - MUST BE BEFORE PUBLIC DYNAMIC ROUTES
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
     Route::prefix('posts')->group(function () {
         Route::get('/all', [PostController::class, 'getAllForAdmin']);      // Admin endpoint
         Route::get('/my-posts', [PostController::class, 'getMyPosts']);     // Writer endpoint
@@ -61,9 +61,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Public post routes - SPECIFIC ROUTES BEFORE DYNAMIC ROUTES
-Route::get('/posts', [PostController::class, 'index']);
-Route::get('/posts/slug/{slug}', [PostController::class, 'showBySlug']);
-Route::get('/posts/{id}', [PostController::class, 'show']);
+Route::middleware('throttle:120,1')->group(function () {
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::get('/posts/slug/{slug}', [PostController::class, 'showBySlug']);
+    Route::get('/posts/{id}', [PostController::class, 'show']);
+});
 
 // ==================== COMMENT ROUTES ====================
 Route::prefix('comments')->group(function () {
@@ -71,7 +73,7 @@ Route::prefix('comments')->group(function () {
     Route::get('/post/{postId}', [CommentController::class, 'getPostComments'])->name('comments.post');
 
     // Protected comment routes (requires authentication)
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::get('/', [CommentController::class, 'index'])->name('comments.index');
         Route::post('/', [CommentController::class, 'store'])->name('comments.store');
         Route::put('/{comment}', [CommentController::class, 'update'])->name('comments.update');
