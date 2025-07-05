@@ -272,7 +272,7 @@
 
                   <!-- Edit Post -->
                   <router-link
-                    :to="`/posts/${post.id}/edit`"
+                    :to="`/posts/${post.slug}`"
                     class="text-blue-600 hover:text-blue-900"
                     title="Düzenle"
                   >
