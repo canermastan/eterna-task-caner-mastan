@@ -50,8 +50,8 @@ class PostPolicy
         return $this->authCheck->isAdmin($user);
     }
 
-    public function viewMyPosts(User $authenticatedUser, User $user): bool
+    public function viewMyPosts(User $user): bool
     {
-        return $authenticatedUser->id === $user->id || $this->authCheck->isAdmin($authenticatedUser);
+        return $this->authCheck->canModerate($user);
     }
 }

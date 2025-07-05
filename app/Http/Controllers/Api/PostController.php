@@ -98,7 +98,7 @@ class PostController extends Controller
 
     public function getMyPosts(Request $request): JsonResponse
     {
-        $this->authorize('viewMyPosts', $request->user());
+        $this->authorize('viewMyPosts', Post::class);
 
         $perPage = $this->getValidatedPerPage($request);
         $posts = $this->postService->getMyPostsWithPagination($request->user(), $perPage);
