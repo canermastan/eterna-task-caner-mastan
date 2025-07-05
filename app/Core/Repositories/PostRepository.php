@@ -22,12 +22,12 @@ class PostRepository implements PostRepositoryInterface
 
     public function getById(int $id): Post
     {
-        return $this->model->findOrFail($id);
+        return $this->model->with(['categories', 'user'])->findOrFail($id);
     }
 
     public function getBySlug(string $slug): Post
     {
-        return $this->model->where('slug', $slug)->firstOrFail();
+        return $this->model->with(['categories', 'user'])->where('slug', $slug)->firstOrFail();
     }
 
     public function getByIdWithUserAndCategory(int $id): Post

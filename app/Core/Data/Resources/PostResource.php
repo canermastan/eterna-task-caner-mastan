@@ -14,8 +14,6 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $this->loadMissing(['categories', 'user']);
-
         return [
             'id' => $this->id,
             'title' => $this->title,
