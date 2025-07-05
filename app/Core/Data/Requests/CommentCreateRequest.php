@@ -70,22 +70,4 @@ class CommentCreateRequest extends FormRequest
             'parent_id' => 'parent comment',
         ];
     }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        // Boş string'leri null yap
-        if ($this->parent_id === '') {
-            $this->merge(['parent_id' => null]);
-        }
-
-        // Content'i temizle
-        if ($this->content) {
-            $this->merge([
-                'content' => trim($this->content)
-            ]);
-        }
-    }
 }
