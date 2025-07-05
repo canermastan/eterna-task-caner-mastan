@@ -53,6 +53,5 @@ class CategoryService
     private function clearCache(): void
     {
         CacheFacade::forget(Cache::KEY_CATEGORIES_ALL);
-        CacheFacade::tags([Cache::TAG_CATEGORIES])->flush();
     }
 }

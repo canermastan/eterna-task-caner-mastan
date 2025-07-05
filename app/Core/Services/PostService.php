@@ -157,11 +157,8 @@ class PostService
 
     public function getByUserIdWithPagination(int $userId): AnonymousResourceCollection
     {
-        $cacheKey = Cache::getPostKey("user_{$userId}");
-        return CacheFacade::remember($cacheKey, Cache::getTTL('medium'), function () use ($userId) {
-            $posts = $this->postRepository->getByUserIdWithPagination($userId);
-            return PostResource::collection($posts);
-        });
+        $posts = $this->postRepository->getByUserIdWithPagination($userId);
+        return PostResource::collection($posts);
     }
 
     public function getAllForAdmin(): AnonymousResourceCollection
@@ -174,11 +171,8 @@ class PostService
 
     public function getMyPostsWithPagination(User $user, int $perPage = 15): AnonymousResourceCollection
     {
-        $cacheKey = Cache::getPostKey("my_posts_{$user->id}_{$perPage}");
-        return CacheFacade::remember($cacheKey, Cache::getTTL('medium'), function () use ($user, $perPage) {
-            $posts = $this->postRepository->getMyPostsWithPagination($user->id, $perPage);
-            return PostResource::collection($posts);
-        });
+        $posts = $this->postRepository->getMyPostsWithPagination($user->id, $perPage);
+        return PostResource::collection($posts);
     }
 
     /**
@@ -209,7 +203,14 @@ class PostService
     {
         CacheFacade::forget(Cache::KEY_POSTS_ALL);
         CacheFacade::forget(Cache::KEY_POSTS_ADMIN_ALL);
-
-        CacheFacade::tags([Cache::TAG_POSTS])->flush();
+        
+        $keysToClear = [
+            Cache::getPostKey('all'),
+            Cache::getPostKey('paginated_15'), // Most common pagination
+        ];
+        
+        foreach ($keysToClear as $key) {
+            CacheFacade::forget($key);
+        }
     }
 }

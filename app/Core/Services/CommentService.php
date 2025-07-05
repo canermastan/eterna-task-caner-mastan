@@ -2,7 +2,6 @@
 
 namespace App\Core\Services;
 
-use App\Core\Constants\Cache;
 use App\Core\Contracts\CommentRepositoryInterface;
 use App\Core\Contracts\PostRepositoryInterface;
 use App\Core\Data\Dtos\Comment\CreateCommentDto;
@@ -14,7 +13,6 @@ use App\Events\CommentDeleted;
 use App\Events\CommentUpdated;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Cache as CacheFacade;
 
 class CommentService
 {
@@ -25,10 +23,7 @@ class CommentService
 
     public function getPaginatedComments(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        $cacheKey = Cache::getCommentKey('paginated_' . $perPage . '_' . md5(serialize($filters)));
-        return CacheFacade::remember($cacheKey, Cache::getTTL('medium'), function () use ($perPage, $filters) {
-            return $this->commentRepository->getAllWithPagination($perPage, $filters);
-        });
+        return $this->commentRepository->getAllWithPagination($perPage, $filters);
     }
 
     public function createComment(CreateCommentDto $createDto, User $user): CommentResource
@@ -43,7 +38,6 @@ class CommentService
             CommentCreated::dispatch($comment, $post);
         }
 
-        $this->clearCommentsCache($createDto->postId);
         return new CommentResource($comment->load(['user', 'parent']));
     }
 
@@ -56,7 +50,6 @@ class CommentService
         $updatedComment->load(['user', 'post']);
         CommentUpdated::dispatch($updatedComment, $updatedComment->post);
 
-        $this->clearCommentsCache($updatedComment->post_id);
         return new CommentResource($updatedComment->load(['user', 'parent']));
     }
 
@@ -69,8 +62,6 @@ class CommentService
         if ($result) {
             $comment->load(['user', 'post']);
             CommentDeleted::dispatch($comment->id, $comment->post->id);
-
-            $this->clearCommentsCache($comment->post_id);
         }
 
         return $result;
@@ -90,7 +81,6 @@ class CommentService
             CommentDeleted::dispatch($moderatedComment->id, $moderatedComment->post->id);
         }
 
-        $this->clearCommentsCache($moderatedComment->post_id);
         return new CommentResource($moderatedComment);
     }
 
@@ -101,29 +91,11 @@ class CommentService
             'parent_id' => 'null'
         ], $additionalFilters);
 
-        $cacheKey = Cache::getCommentKey("post_{$postId}_{$perPage}_" . md5(serialize($additionalFilters)));
-        return CacheFacade::remember($cacheKey, Cache::getTTL('short'), function () use ($perPage, $filters) {
-            return $this->commentRepository->getAllWithPagination($perPage, $filters);
-        });
+        return $this->commentRepository->getAllWithPagination($perPage, $filters);
     }
 
     private function determineInitialStatus(User $user): string
     {
         return $user->isAdmin() ? 'approved' : 'pending';
-    }
-
-    private function clearCommentsCache(?int $postId = null): void
-    {
-        if ($postId) {
-            // Clear specific post comments cache
-            $postCacheKey = Cache::getCommentKey("post_{$postId}");
-            CacheFacade::forget($postCacheKey);
-        }
-        
-        // Clear general comments cache
-        CacheFacade::forget(Cache::getCommentKey('paginated'));
-        
-        // Clear all comment-related cache using tags
-        CacheFacade::tags([Cache::TAG_COMMENTS])->flush();
     }
 }
