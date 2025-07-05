@@ -22,8 +22,6 @@ class CategoryController extends Controller
 
     public function index(): JsonResponse
     {
-        $this->authorize('viewAny', Category::class);
-
         $categories = $this->categoryService->getAll();
         return $this->successResponse($categories, 'Categories fetched successfully', Response::HTTP_OK);
     }
