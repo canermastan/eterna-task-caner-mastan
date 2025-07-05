@@ -28,16 +28,13 @@ class AuthController extends Controller
 
                 $user->load('role');
 
-                Auth::guard('web')->login($user, remember: true);
-
-                $request->session()->migrate(destroy: true);
+                $token = $user->createToken('auth_token')->plainTextToken;
 
                 Log::info('User registered and authenticated', [
                     'user_id' => $user->id,
                     'email' => $user->email,
                     'ip' => $request->ip(),
                     'user_agent' => $request->userAgent(),
-                    'session_id' => $request->session()->getId(),
                 ]);
 
                 return $this->successResponse([
@@ -52,7 +49,7 @@ class AuthController extends Controller
                         'is_active' => $user->is_active,
                         'created_at' => $user->created_at,
                     ],
-                    'authenticated' => Auth::guard('web')->check(),
+                    'token' => $token,
                 ], 'Account created and logged in successfully');
             });
 
@@ -83,11 +80,29 @@ class AuthController extends Controller
         }
 
         try {
-            $request->authenticate();
+            $validatedData = $request->validated();
+            $login = $validatedData['login'];
+            
+            $credentials = ['password' => $validatedData['password']];
+            
+            if (filter_var($login, FILTER_VALIDATE_EMAIL)) {
+                $credentials['email'] = $login;
+            } else {
+                $credentials['phone'] = $login;
+            }
+            
+            $credentials['is_active'] = true;
+            
+            if (!Auth::attempt($credentials)) {
+                RateLimiter::hit($throttleKey, 60);
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
 
             $user = User::with('role')->find(Auth::id());
 
-            $request->session()->regenerate();
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             RateLimiter::clear($throttleKey);
 
@@ -109,6 +124,7 @@ class AuthController extends Controller
                     'email_verified_at' => $user->email_verified_at,
                     'phone_verified_at' => $user->phone_verified_at,
                 ],
+                'token' => $token,
             ], 'Login successful');
 
         } catch (ValidationException $e) {
@@ -130,10 +146,7 @@ class AuthController extends Controller
         try {
             $user = $request->user();
 
-            Auth::guard('web')->logout();
-
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            $request->user()->currentAccessToken()->delete();
 
             Log::info('User logout successful', [
                 'user_id' => $user->id,
@@ -155,7 +168,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        $user = User::with('role')->find(Auth::id());
+        $user = $request->user()->load('role');
 
         return $this->successResponse([
             'user' => [

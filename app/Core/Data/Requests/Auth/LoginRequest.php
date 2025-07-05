@@ -109,7 +109,7 @@ class LoginRequest extends FormRequest
 
         $credentials['is_active'] = true;
 
-        if (! Auth::guard('web')->attempt($credentials, $this->boolean('remember'))) {
+        if (! Auth::guard('api')->attempt($credentials, $this->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'login' => 'Invalid credentials or account is not active.',
             ]);
