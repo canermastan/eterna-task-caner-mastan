@@ -54,17 +54,4 @@ class CommentUpdateRequest extends FormRequest
             'content' => 'comment content',
         ];
     }
-
-    /**
-     * Prepare the data for validation.
-     */
-    protected function prepareForValidation(): void
-    {
-        // Content'i temizle
-        if ($this->content) {
-            $this->merge([
-                'content' => trim($this->content)
-            ]);
-        }
-    }
 }
