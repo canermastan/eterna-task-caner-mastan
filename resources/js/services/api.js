@@ -7,128 +7,58 @@ const api = axios.create({
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
     },
-    withCredentials: true,
     timeout: 30000,
 });
 
-class SanctumCSRF {
-    constructor() {
-        this.initialized = false;
-        this.lastInitTime = 0;
-        this.initPromise = null;
-        this.CACHE_DURATION = 30000; // 30 seconds cache
-    }
+// Token management
+const TOKEN_KEY = 'sanctum_token';
 
-    async initialize() {
-        const now = Date.now();
-        
-        // Return if recently initialized
-        if (this.initialized && (now - this.lastInitTime < this.CACHE_DURATION)) {
-            return;
-        }
-
-        // Prevent concurrent initialization
-        if (this.initPromise) {
-            return this.initPromise;
-        }
-
-        this.initPromise = this._performInit();
-        try {
-            await this.initPromise;
-        } finally {
-            this.initPromise = null;
-        }
-    }
-
-    async _performInit() {
-        try {
-            await axios.get('/sanctum/csrf-cookie', { 
-                withCredentials: true,
-                timeout: 5000,
-            });
-            this.initialized = true;
-            this.lastInitTime = Date.now();
-        } catch (error) {
-            this.initialized = false;
-            throw new Error('CSRF initialization failed');
-        }
-    }
-
-    reset() {
-        this.initialized = false;
-        this.lastInitTime = 0;
-        this.initPromise = null;
-    }
-
-    isValid() {
-        const now = Date.now();
-        return this.initialized && (now - this.lastInitTime < this.CACHE_DURATION);
-    }
-}
-
-const sanctumCSRF = new SanctumCSRF();
-
-// Request interceptor for Sanctum SPA with intelligent CSRF handling
+// Request interceptor to add Bearer token
 api.interceptors.request.use(
-    async (config) => {
-        // Only initialize CSRF for non-GET requests that require it
-        if (shouldInitializeCSRF(config)) {
-            try {
-                await sanctumCSRF.initialize();
-            } catch (error) {
-                if (import.meta.env.DEV) {
-                    console.warn('Sanctum CSRF initialization failed:', error);
-                }
-                // Don't block request on CSRF failure - let server handle it
-            }
+    (config) => {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
     (error) => Promise.reject(error)
 );
 
-function shouldInitializeCSRF(config) {
-    if (config.method === 'get') return false;
-    
-    if (config.url.includes('sanctum/csrf-cookie')) return false;
-    
-    if (sanctumCSRF.isValid()) return false;
-    
-    // Skip for auth endpoints if we're on auth pages (avoid loops)
-    if (config.url.includes('/auth/') && window.location.pathname.includes('/auth/')) {
-        return false;
-    }
-    
-    return true;
-}
-
-// Response interceptor for Sanctum SPA
+// Response interceptor for token-based auth
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const originalRequest = error.config;
-
-        // Handle CSRF token mismatch with retry
-        if (error.response?.status === 419 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            
-            try {
-                sanctumCSRF.reset();
-                await sanctumCSRF.initialize();
-                return api(originalRequest);
-            } catch (refreshError) {
-                if (import.meta.env.DEV) {
-                    console.error('Sanctum CSRF retry failed:', refreshError);
-                }
-            }
-        }
-
+        // Handle 401 unauthorized - token expired or invalid
         if (error.response?.status === 401) {
-            sanctumCSRF.reset();
+            // Clear invalid token
+            localStorage.removeItem(TOKEN_KEY);
+            
+            // Redirect to login if not already on auth page
+            if (!window.location.pathname.includes('/auth/')) {
+                window.location.href = '/auth/login';
+            }
         }
 
         return Promise.reject(error);
     }
 );
+
+// Token management functions
+export const setToken = (token) => {
+    localStorage.setItem(TOKEN_KEY, token);
+};
+
+export const getToken = () => {
+    return localStorage.getItem(TOKEN_KEY);
+};
+
+export const removeToken = () => {
+    localStorage.removeItem(TOKEN_KEY);
+};
+
+export const hasToken = () => {
+    return !!localStorage.getItem(TOKEN_KEY);
+};
 
 export default api; 
