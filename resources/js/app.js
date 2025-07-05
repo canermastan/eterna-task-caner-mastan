@@ -11,7 +11,6 @@ import AuthService from '@/services/AuthService';
 import Home from '@/pages/Home.vue';
 import Login from '@/pages/auth/Login.vue';
 import Register from '@/pages/auth/Register.vue';
-import Posts from '@/pages/posts/Index.vue';
 import PostCreate from '@/pages/posts/Create.vue';
 import PostShow from '@/pages/posts/Show.vue';
 import MyPosts from '@/pages/posts/MyPosts.vue';
@@ -28,7 +27,6 @@ const routes = [
         component: AppLayout,
         children: [
             { path: '', name: 'home', component: Home },
-            { path: '/posts', name: 'posts.index', component: Posts },
             { path: '/posts/create', name: 'posts.create', component: PostCreate },
             { path: '/posts/my-posts', name: 'posts.my', component: MyPosts },
             { path: '/posts/:id', name: 'posts.show', component: PostShow },
