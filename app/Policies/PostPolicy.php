@@ -32,9 +32,9 @@ class PostPolicy
         return $this->authCheck->isOwner($user, $post) || $this->authCheck->isAdmin($user);
     }
 
-    public function delete(User $user): bool
+    public function delete(User $user, Post $post): bool
     {
-        return $this->authCheck->canModerate($user);
+        return $this->authCheck->isOwner($user, $post) || $this->authCheck->isAdmin($user);
     }
 
     public function toggleDraftPublished(User $user): bool
