@@ -343,7 +343,7 @@ const { data: categoriesData, isLoading: categoriesLoading, error: categoriesErr
   queryFn: () => CategoryService.getCategories(),
 });
 
-const categories = computed(() => categoriesData.value?.data || []);
+const categories = computed(() => categoriesData.value || []);
 
 const canSave = computed(() => {
   return values.title?.trim() && values.content?.trim();
