@@ -6,11 +6,11 @@ use App\Core\Contracts\CommentRepositoryInterface;
 use App\Core\Contracts\PostRepositoryInterface;
 use App\Core\Data\Dtos\Comment\CreateCommentDto;
 use App\Core\Data\Dtos\Comment\UpdateCommentDto;
-use App\Core\Data\Resources\CommentResource;
 use App\Core\Enums\CommentStatus;
 use App\Events\CommentCreated;
 use App\Events\CommentDeleted;
 use App\Events\CommentUpdated;
+use App\Models\Comment;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -26,22 +26,22 @@ class CommentService
         return $this->commentRepository->getAllWithPagination($perPage, $filters);
     }
 
-    public function createComment(CreateCommentDto $createDto, User $user): CommentResource
+    public function createComment(CreateCommentDto $createDto, User $user): Comment
     {
         $post = $this->postRepository->getById($createDto->postId);
 
         $status = $this->determineInitialStatus($user);
         $comment = $this->commentRepository->createFromDto($createDto, $user->id, $status);
 
+        $comment->load(['user', 'parent']);
         if ($comment->status === 'approved') {
-            $comment->load(['user']);
             CommentCreated::dispatch($comment, $post);
         }
 
-        return new CommentResource($comment->load(['user', 'parent']));
+        return $comment;
     }
 
-    public function updateComment(int $commentId, UpdateCommentDto $updateDto): CommentResource
+    public function updateComment(int $commentId, UpdateCommentDto $updateDto): Comment
     {
         $comment = $this->commentRepository->findByIdWithRelations($commentId);
 
@@ -50,7 +50,7 @@ class CommentService
         $updatedComment->load(['user', 'post']);
         CommentUpdated::dispatch($updatedComment, $updatedComment->post);
 
-        return new CommentResource($updatedComment->load(['user', 'parent']));
+        return $updatedComment;
     }
 
     public function deleteComment(int $commentId): bool
@@ -67,7 +67,7 @@ class CommentService
         return $result;
     }
 
-    public function moderateComment(int $commentId, CommentStatus $status): CommentResource
+    public function moderateComment(int $commentId, CommentStatus $status): Comment
     {
         $comment = $this->commentRepository->findById($commentId);
 
@@ -81,7 +81,7 @@ class CommentService
             CommentDeleted::dispatch($moderatedComment->id, $moderatedComment->post->id);
         }
 
-        return new CommentResource($moderatedComment);
+        return $moderatedComment;
     }
 
     public function getPostCommentsWithPagination(int $postId, int $perPage = 15, array $additionalFilters = []): LengthAwarePaginator

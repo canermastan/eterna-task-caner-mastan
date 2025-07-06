@@ -34,23 +34,7 @@ class CommentController extends Controller
 
         $comments = $this->commentService->getPaginatedComments($perPage, $filters);
 
-        $transformedComments = CommentResource::collection($comments->items());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Comments listed successfully',
-            'data' => $transformedComments,
-            'pagination' => [
-                'current_page' => $comments->currentPage(),
-                'per_page' => $comments->perPage(),
-                'total' => $comments->total(),
-                'last_page' => $comments->lastPage(),
-                'from' => $comments->firstItem(),
-                'to' => $comments->lastItem(),
-                'has_more_pages' => $comments->hasMorePages(),
-            ],
-            'timestamp' => now()->toISOString(),
-        ]);
+        return $this->paginatedResponse(CommentResource::collection($comments), "Comments fetched successfully");
     }
 
     public function store(StoreCommentRequest $request): JsonResponse
@@ -60,11 +44,7 @@ class CommentController extends Controller
         $createDto = CreateCommentDto::fromRequest($request);
         $commentResource = $this->commentService->createComment($createDto, $request->user());
 
-        return $this->successResponse(
-            $commentResource,
-            'Comment created successfully',
-            Response::HTTP_CREATED
-        );
+        return $this->successResponse($commentResource, 'Comment created successfully', Response::HTTP_CREATED);
     }
 
     public function update(UpdateCommentRequest $request, Comment $comment): JsonResponse
@@ -72,16 +52,9 @@ class CommentController extends Controller
         $this->authorize('update', $comment);
 
         $updateDto = UpdateCommentDto::fromRequest($request);
-        $commentResource = $this->commentService->updateComment(
-            $comment->id,
-            $updateDto
-        );
+        $commentResource = $this->commentService->updateComment($comment->id, $updateDto);
 
-        return $this->successResponse(
-            $commentResource,
-            'Comment updated successfully',
-            Response::HTTP_OK
-        );
+        return $this->successResponse($commentResource, 'Comment updated successfully', Response::HTTP_OK);
     }
 
     public function destroy(Comment $comment): JsonResponse
@@ -90,11 +63,7 @@ class CommentController extends Controller
 
         $this->commentService->deleteComment($comment->id);
 
-        return $this->successResponse(
-            null,
-            'Comment deleted successfully',
-            Response::HTTP_NO_CONTENT
-        );
+        return $this->successResponse(null, 'Comment deleted successfully', Response::HTTP_NO_CONTENT);
     }
 
     public function approve(int $commentId): JsonResponse
@@ -103,11 +72,7 @@ class CommentController extends Controller
 
         $commentResource = $this->commentService->moderateComment($commentId, CommentStatus::APPROVED);
 
-        return $this->successResponse(
-            $commentResource,
-            'Comment approved successfully',
-            Response::HTTP_OK
-        );
+        return $this->successResponse($commentResource, 'Comment approved successfully', Response::HTTP_OK);
     }
 
     public function reject(int $commentId): JsonResponse
@@ -116,11 +81,7 @@ class CommentController extends Controller
 
         $commentResource = $this->commentService->moderateComment($commentId, CommentStatus::REJECTED);
 
-        return $this->successResponse(
-            $commentResource,
-            'Comment rejected successfully',
-            Response::HTTP_OK
-        );
+        return $this->successResponse($commentResource, 'Comment rejected successfully', Response::HTTP_OK);
     }
 
     public function getPostComments(int $postId, Request $request): JsonResponse
@@ -130,24 +91,6 @@ class CommentController extends Controller
 
         $comments = $this->commentService->getPostCommentsWithPagination($postId, $perPage, $additionalFilters);
 
-        $transformedComments = CommentResource::collection($comments->items());
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Post comments retrieved successfully',
-            'data' => $transformedComments,
-            'pagination' => [
-                'current_page' => $comments->currentPage(),
-                'per_page' => $comments->perPage(),
-                'total' => $comments->total(),
-                'last_page' => $comments->lastPage(),
-                'from' => $comments->firstItem(),
-                'to' => $comments->lastItem(),
-                'has_more_pages' => $comments->hasMorePages(),
-            ],
-            'timestamp' => now()->toISOString(),
-        ]);
+        return $this->paginatedResponse(CommentResource::collection($comments), 'Comments fetched successfully');
     }
-
-
 }

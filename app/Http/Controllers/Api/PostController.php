@@ -7,6 +7,7 @@ use App\Core\Data\Dtos\Post\CreatePostDto;
 use App\Core\Data\Dtos\Post\UpdatePostDto;
 use App\Core\Data\Requests\Post\StorePostRequest;
 use App\Core\Data\Requests\Post\UpdatePostRequest;
+use App\Core\Data\Resources\PostResource;
 use App\Core\Services\PostService;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
@@ -28,19 +29,19 @@ class PostController extends Controller
     {
         $perPage = $this->getValidatedPerPage($request);
         $posts = $this->postService->getAllWithPagination($perPage);
-        return $this->paginatedResponse($posts, 'Posts fetched successfully', Response::HTTP_OK);
+        return $this->paginatedResponse(PostResource::collection($posts), 'Posts fetched successfully', Response::HTTP_OK);
     }
 
     public function show(int $id): JsonResponse
     {
         $post = $this->postService->getById($id);
-        return $this->successResponse($post, 'Post fetched successfully');
+        return $this->successResponse(new PostResource($post), 'Post fetched successfully');
     }
 
     public function showBySlug(string $slug): JsonResponse
     {
         $post = $this->postService->getBySlug($slug);
-        return $this->successResponse($post, 'Post fetched successfully');
+        return $this->successResponse(new PostResource($post), 'Post fetched successfully');
     }
 
     public function store(StorePostRequest $request): JsonResponse
@@ -48,17 +49,17 @@ class PostController extends Controller
         $this->authorize('create', Post::class);
 
         $dto = CreatePostDto::fromRequest($request);
-        $postDto = $this->postService->createPost($dto, $request->user());
+        $post = $this->postService->createPost($dto, $request->user());
 
-        return $this->successResponse($postDto, 'Post created successfully', Response::HTTP_CREATED);
+        return $this->successResponse(new PostResource($post), 'Post created successfully', Response::HTTP_CREATED);
     }
 
     public function toggleDraftPublished(int $id): JsonResponse
     {
         $this->authorize('toggleDraftPublished', Post::class);
 
-        $postDto = $this->postService->toggleDraftPublished($id);
-        return $this->successResponse($postDto, 'Post status updated successfully', Response::HTTP_OK);
+        $post = $this->postService->toggleDraftPublished($id);
+        return $this->successResponse(new PostResource($post), 'Post status updated successfully', Response::HTTP_OK);
     }
 
     public function update(int $id, UpdatePostRequest $request): JsonResponse
@@ -66,8 +67,8 @@ class PostController extends Controller
         $this->authorize('update', $this->postService->getRawPostById($id));
 
         $dto = UpdatePostDto::fromRequest($request);
-        $postDto = $this->postService->update($id, $dto, $request->user());
-        return $this->successResponse($postDto, 'Post updated successfully', Response::HTTP_OK);
+        $post = $this->postService->update($id, $dto, $request->user());
+        return $this->successResponse(new PostResource($post), 'Post updated successfully', Response::HTTP_OK);
     }
 
     public function destroy(int $id): JsonResponse
@@ -81,7 +82,7 @@ class PostController extends Controller
     public function getByUserIdWithPagination(int $userId): JsonResponse
     {
         $posts = $this->postService->getByUserIdWithPagination($userId);
-        return $this->paginatedResponse($posts, 'Posts fetched successfully', Response::HTTP_OK);
+        return $this->paginatedResponse(PostResource::collection($posts), 'Posts fetched successfully', Response::HTTP_OK);
     }
 
     public function getAllForAdmin(): JsonResponse
@@ -89,7 +90,7 @@ class PostController extends Controller
         $this->authorize('viewAllPostsForAdmin', Post::class);
 
         $posts = $this->postService->getAllForAdmin();
-        return $this->successResponse($posts, 'All posts fetched successfully for admin');
+        return $this->successResponse(PostResource::collection($posts), 'All posts fetched successfully for admin');
     }
 
     public function getMyPosts(Request $request): JsonResponse
@@ -98,7 +99,7 @@ class PostController extends Controller
 
         $perPage = $this->getValidatedPerPage($request);
         $posts = $this->postService->getMyPostsWithPagination($request->user(), $perPage);
-        return $this->paginatedResponse($posts, 'My posts fetched successfully', Response::HTTP_OK);
+        return $this->paginatedResponse(PostResource::collection($posts), 'My posts fetched successfully', Response::HTTP_OK);
     }
 
     private function getValidatedPerPage(Request $request): int

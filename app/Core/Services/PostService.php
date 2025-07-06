@@ -7,13 +7,13 @@ use App\Core\Contracts\PostRepositoryInterface;
 use App\Core\Data\Dtos\Post\CreatePostDto;
 use App\Core\Data\Dtos\Post\TogglePublishStatusDto;
 use App\Core\Data\Dtos\Post\UpdatePostDto;
-use App\Core\Data\Resources\PostResource;
 use App\Core\Enums\PostStatus;
 use App\Events\PostPublished;
 use App\Events\PostStatusUpdated;
 use App\Models\Post;
 use App\Models\User;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache as CacheFacade;
 use Illuminate\Support\Str;
 
@@ -23,41 +23,37 @@ class PostService
         private PostRepositoryInterface $postRepository
     ) {}
 
-    public function getAll(): AnonymousResourceCollection
+    public function getAll(): Collection
     {
         return CacheFacade::remember(Cache::getPostKey('all'), Cache::getTTL('long'), function () {
-                $posts = $this->postRepository->getAll();
-                return PostResource::collection($posts);
+                return $this->postRepository->getAll();
             }
         );
     }
 
-    public function getAllWithPagination(int $perPage = 15): AnonymousResourceCollection
+    public function getAllWithPagination(int $perPage = 15): LengthAwarePaginator
     {
         $cacheKey = Cache::getPostKey("paginated_{$perPage}");
         return CacheFacade::remember($cacheKey, Cache::getTTL('medium'), function () use ($perPage) {
-            $posts = $this->postRepository->getAllWithPagination($perPage);
-            return PostResource::collection($posts);
+            return $this->postRepository->getAllWithPagination($perPage);
         });
     }
 
-    public function getById(int $id): PostResource
+    public function getById(int $id): Post
     {
         return CacheFacade::remember(Cache::getPostKey("id_{$id}"), Cache::getTTL('long'), function () use ($id) {
-            $post = $this->postRepository->getByIdWithUserAndCategory($id);
-            return new PostResource($post);
+            return $this->postRepository->getByIdWithUserAndCategory($id);
         });
     }
 
-    public function getBySlug(string $slug): PostResource
+    public function getBySlug(string $slug): Post
     {
         return CacheFacade::remember(Cache::getPostKey("slug_{$slug}"), Cache::getTTL('long'), function () use ($slug) {    
-            $post = $this->postRepository->getBySlugWithUserAndCategory($slug);
-            return new PostResource($post);
+            return $this->postRepository->getBySlugWithUserAndCategory($slug);
         });
     }
 
-    public function createPost(CreatePostDto $postDto, User $user): PostResource
+    public function createPost(CreatePostDto $postDto, User $user): Post
     {
         $status = $this->determineStatus($user);
 
@@ -86,10 +82,10 @@ class PostService
         }
 
         $this->clearCache();
-        return new PostResource($post);
+        return $post;
     }
 
-    public function toggleDraftPublished(int $postId): PostResource
+    public function toggleDraftPublished(int $postId): Post
     {
         $post = $this->postRepository->getByIdWithUserAndCategory($postId);
 
@@ -118,10 +114,10 @@ class PostService
         }
 
         $this->clearCache();
-        return new PostResource($updatedPost);
+        return $updatedPost;
     }
 
-    public function update(int $id, UpdatePostDto $updatePostDto, User $user): PostResource
+    public function update(int $id, UpdatePostDto $updatePostDto, User $user): Post
     {
         // if user is a writer, we need to set the status to draft again and set the published_at to null
         $updatePostDto->status = $this->determineStatus($user);
@@ -136,7 +132,7 @@ class PostService
         }
 
         $this->clearCache();
-        return new PostResource($post);
+        return $post;
     }
 
     public function getRawPostById(int $id): Post
@@ -155,24 +151,21 @@ class PostService
         $this->clearCache();
     }
 
-    public function getByUserIdWithPagination(int $userId): AnonymousResourceCollection
+    public function getByUserIdWithPagination(int $userId): LengthAwarePaginator
     {
-        $posts = $this->postRepository->getByUserIdWithPagination($userId);
-        return PostResource::collection($posts);
+        return $this->postRepository->getByUserIdWithPagination($userId);
     }
 
-    public function getAllForAdmin(): AnonymousResourceCollection
+    public function getAllForAdmin(): Collection
     {
         return CacheFacade::remember(Cache::KEY_POSTS_ADMIN_ALL, Cache::getTTL('medium'), function () {
-            $posts = $this->postRepository->getAllForAdmin();
-            return PostResource::collection($posts);
+            return $this->postRepository->getAllForAdmin();
         });
     }
 
-    public function getMyPostsWithPagination(User $user, int $perPage = 15): AnonymousResourceCollection
+    public function getMyPostsWithPagination(User $user, int $perPage = 15): LengthAwarePaginator
     {
-        $posts = $this->postRepository->getMyPostsWithPagination($user->id, $perPage);
-        return PostResource::collection($posts);
+        return $this->postRepository->getMyPostsWithPagination($user->id, $perPage);
     }
 
     /**

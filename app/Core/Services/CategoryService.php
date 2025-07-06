@@ -5,7 +5,9 @@ namespace App\Core\Services;
 use App\Core\Constants\Cache;
 use App\Core\Contracts\CategoryRepositoryInterface;
 use App\Core\Data\Resources\CategoryResource;
+use App\Models\Category;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache as CacheFacade;
 use Illuminate\Support\Str;
 
@@ -15,14 +17,14 @@ class CategoryService
         private CategoryRepositoryInterface $categoryRepository
     ) {}
 
-    public function getAll(): AnonymousResourceCollection
+    public function getAll(): Collection
     {
         return CacheFacade::remember(Cache::KEY_CATEGORIES_ALL, Cache::getTTL('very_long'), function () {
-            return CategoryResource::collection($this->categoryRepository->getAll());
+            return $this->categoryRepository->getAll();
         });
     }
 
-    public function create(string $name): CategoryResource
+    public function create(string $name): Category
     {
         $category = $this->categoryRepository->create([
             'name' => $name,
@@ -30,10 +32,10 @@ class CategoryService
         ]);
         
         $this->clearCache();
-        return new CategoryResource($category);
+        return $category;
     }
 
-    public function update(int $id, string $name): CategoryResource
+    public function update(int $id, string $name): Category
     {
         $category = $this->categoryRepository->update($id, [
             'name' => $name,
@@ -41,7 +43,7 @@ class CategoryService
         ]);
         
         $this->clearCache();
-        return new CategoryResource($category);
+        return $category;
     }
 
     public function delete(int $id): void
