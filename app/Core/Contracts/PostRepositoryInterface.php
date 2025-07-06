@@ -24,8 +24,6 @@ interface PostRepositoryInterface
 
     public function getAllWithPagination(int $perPage = 15): LengthAwarePaginator;
 
-    public function getByUserIdWithPagination(int $userId): LengthAwarePaginator;
-
     public function getAllForAdmin(): Collection;
     
     public function getMyPostsWithPagination(int $userId, int $perPage = 15): LengthAwarePaginator;

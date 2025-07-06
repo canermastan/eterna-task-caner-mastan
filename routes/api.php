@@ -51,7 +51,6 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::get('/all', [PostController::class, 'getAllForAdmin']);      // Admin endpoint
         Route::get('/my-posts', [PostController::class, 'getMyPosts']);     // Writer endpoint
         Route::post('/', [PostController::class, 'store']);
-        Route::get('/user/{userId}', [PostController::class, 'getByUserIdWithPagination']);
         Route::patch('/{id}/toggle-draft-published', [PostController::class, 'toggleDraftPublished']);
 
         // Note: Using POST instead of PUT because sending a file (coverImage) with PUT caused errors.

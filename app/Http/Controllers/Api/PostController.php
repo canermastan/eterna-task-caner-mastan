@@ -79,12 +79,6 @@ class PostController extends Controller
         return $this->successResponse(null, 'Post deleted successfully', Response::HTTP_NO_CONTENT);
     }
 
-    public function getByUserIdWithPagination(int $userId): JsonResponse
-    {
-        $posts = $this->postService->getByUserIdWithPagination($userId);
-        return $this->paginatedResponse(PostResource::collection($posts), 'Posts fetched successfully', Response::HTTP_OK);
-    }
-
     public function getAllForAdmin(): JsonResponse
     {
         $this->authorize('viewAllPostsForAdmin', Post::class);

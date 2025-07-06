@@ -184,11 +184,6 @@ class PostService
         $this->clearCache();
     }
 
-    public function getByUserIdWithPagination(int $userId): LengthAwarePaginator
-    {
-        return $this->postRepository->getByUserIdWithPagination($userId);
-    }
-
     public function getAllForAdmin(): Collection
     {
         return CacheFacade::remember(Cache::KEY_POSTS_ADMIN_ALL, Cache::getTTL('medium'), function () {
