@@ -68,11 +68,21 @@ class PostService
 
         if (!empty($postDto->categoryIds)) {
             $post->categories()->attach($postDto->categoryIds);
+
+            activity()
+                ->performedOn($post)
+                ->causedBy($user)
+                ->log('Post categories added');
         }
 
         if ($postDto->coverImage && $postDto->coverImage->isValid()) {
             $post->addMedia($postDto->coverImage->getPathname())
                 ->toMediaCollection('cover_images');
+
+            activity()
+                ->performedOn($post)
+                ->causedBy($user)
+                ->log('Post cover image added');
         }
 
         $post->load(['user', 'categories']);
@@ -81,7 +91,7 @@ class PostService
             PostPublished::dispatch($post);
         }
 
-        $this->clearCache();
+        $this->clearCache($post);
         return $post;
     }
 
@@ -113,7 +123,7 @@ class PostService
             PostStatusUpdated::dispatch($updatedPost, $previousStatus);
         }
 
-        $this->clearCache();
+        $this->clearCache($updatedPost);
         return $updatedPost;
     }
 
@@ -124,14 +134,37 @@ class PostService
         $updatePostDto->published_at = $updatePostDto->status === PostStatus::DRAFT ? null : now();
 
         $postDb = $this->postRepository->getById($id);
+
+        $oldCategoryIds = $postDb->categories->pluck('id')->toArray();
+        $newCategoryIds = $updatePostDto->categoryIds;
+
         $post = $this->postRepository->updateFromDto($postDb, $updatePostDto);
+
+        if ($updatePostDto->categoryIds !== null) {
+            $post->categories()->sync($updatePostDto->categoryIds);
+
+            activity()
+                ->performedOn($post)
+                ->causedBy($user)
+                ->withProperties([
+                    'old_categories' => $oldCategoryIds,
+                    'new_categories' => $newCategoryIds,
+                ])
+                ->log('Post categories updated');
+        }
+
 
         if ($updatePostDto->coverImage && $updatePostDto->coverImage->isValid()) {
             $post->addMedia($updatePostDto->coverImage->getPathname())
                 ->toMediaCollection('cover_images');
+
+            activity()
+                ->performedOn($post)
+                ->causedBy($user)
+                ->log('Post cover image updated');
         }
 
-        $this->clearCache();
+        $this->clearCache($post);
         return $post;
     }
 
@@ -192,7 +225,7 @@ class PostService
         return $user->isAdmin() ? PostStatus::PUBLISHED : PostStatus::DRAFT;
     }
 
-    private function clearCache(): void
+    private function clearCache(?Post $post = null): void
     {
         CacheFacade::forget(Cache::KEY_POSTS_ALL);
         CacheFacade::forget(Cache::KEY_POSTS_ADMIN_ALL);
@@ -202,6 +235,11 @@ class PostService
             Cache::getPostKey('paginated_15'), // Most common pagination
         ];
         
+        if ($post) {
+            $keysToClear[] = Cache::getPostKey("id_{$post->id}");
+            $keysToClear[] = Cache::getPostKey("slug_{$post->slug}");
+        }
+ 
         foreach ($keysToClear as $key) {
             CacheFacade::forget($key);
         }

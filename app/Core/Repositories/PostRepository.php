@@ -94,10 +94,6 @@ class PostRepository implements PostRepositoryInterface
             $post->update($updateData);
         }
 
-        if ($updatePostDto->categoryIds !== null) {
-            $post->categories()->sync($updatePostDto->categoryIds);
-        }
-
         return $post;
     }
 
