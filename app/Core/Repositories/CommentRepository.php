@@ -5,7 +5,6 @@ namespace App\Core\Repositories;
 use App\Core\Contracts\CommentRepositoryInterface;
 use App\Core\Data\Dtos\Comment\CreateCommentDto;
 use App\Core\Data\Dtos\Comment\UpdateCommentDto;
-use App\Core\Data\Dtos\Comment\CommentModerationDto;
 use App\Core\Enums\CommentStatus;
 use App\Models\Comment;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
