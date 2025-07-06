@@ -84,12 +84,18 @@ class CommentService
         return $moderatedComment;
     }
 
-    public function getPostCommentsWithPagination(int $postId, int $perPage = 15, array $additionalFilters = []): LengthAwarePaginator
+    public function getPostCommentsWithPagination(int $postId, ?User $user, int $perPage = 15, array $additionalFilters = []): LengthAwarePaginator
     {
-        $filters = array_merge([
+        $filters = [
             'post_id' => $postId,
             'parent_id' => 'null'
-        ], $additionalFilters);
+        ];
+
+        if ($user && $user->can('filter', Comment::class)) {
+            $filters = array_merge($filters, $additionalFilters);
+        } else {
+            $filters['status'] = 'approved';
+        }
 
         return $this->commentRepository->getAllWithPagination($perPage, $filters);
     }

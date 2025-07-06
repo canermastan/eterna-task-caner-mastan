@@ -47,4 +47,9 @@ class CommentPolicy
     {
         return $this->authCheck->isAdmin($user);
     }
+
+    public function filter(User $user): bool
+    {
+        return $this->authCheck->isAdmin($user);
+    }
 }

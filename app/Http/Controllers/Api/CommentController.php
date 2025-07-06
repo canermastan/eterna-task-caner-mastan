@@ -87,9 +87,10 @@ class CommentController extends Controller
     public function getPostComments(int $postId, Request $request): JsonResponse
     {
         $perPage = $request->get('per_page', 15);
+
         $additionalFilters = $request->only(['status', 'search']);
 
-        $comments = $this->commentService->getPostCommentsWithPagination($postId, $perPage, $additionalFilters);
+        $comments = $this->commentService->getPostCommentsWithPagination($postId, $request->user(), $perPage, $additionalFilters);
 
         return $this->paginatedResponse(CommentResource::collection($comments), 'Comments fetched successfully');
     }
