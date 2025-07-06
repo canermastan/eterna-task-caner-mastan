@@ -65,36 +65,4 @@ trait ApiResponseTrait
             JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
         );
     }
-
-    protected function createdResponse(
-        mixed $data = null,
-        string $message = 'Resource created successfully'
-    ): JsonResponse {
-        return $this->successResponse($data, $message, Response::HTTP_CREATED);
-    }
-
-    protected function updatedResponse(
-        mixed $data = null,
-        string $message = 'Resource updated successfully'
-    ): JsonResponse {
-        return $this->successResponse($data, $message, Response::HTTP_OK);
-    }
-
-    protected function deletedResponse(
-        string $message = 'Resource deleted successfully'
-    ): JsonResponse {
-        return $this->successResponse(null, $message, Response::HTTP_NO_CONTENT);
-    }
-
-    protected function notFoundResponse(
-        string $message = 'Resource not found'
-    ): JsonResponse {
-        return $this->errorResponse($message, Response::HTTP_NOT_FOUND);
-    }
-
-    protected function internalServerErrorResponse(
-        string $message = 'Internal server error'
-    ): JsonResponse {
-        return $this->errorResponse($message, Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
 }
