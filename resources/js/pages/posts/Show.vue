@@ -847,7 +847,6 @@ const {
   loadMore,
 } = useComments(postId, isAdmin, currentUser);
 
-// Alias for template compatibility
 const loadMoreComments = loadMore;
 
 const submitComment = async () => {
@@ -886,7 +885,6 @@ const submitComment = async () => {
       };
       
       queryClient.setQueryData(['comments', 'post', postId.value], optimisticData);
-      console.log('⚡ Optimistic comment added to UI');
     }
   }
 
@@ -922,21 +920,9 @@ const submitComment = async () => {
         };
         
         queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-        console.log('✅ Comment updated with real data');
       }
     }
-    
-    console.log('✅ Comment created successfully');
-    
-    // Show success message for non-admin users
-    if (!isAdmin.value) {
-      // TODO: Show brief success notification instead of alert
-      console.log('📝 Comment submitted and pending approval');
-    }
-    
   } catch (error) {
-    console.error('Comment submission error:', error);
-    
     // Remove optimistic comment on error (only if it was added)
     if (shouldShowOptimistic) {
       const currentDataError = queryClient.getQueryData(['comments', 'post', postId.value]);
@@ -951,7 +937,6 @@ const submitComment = async () => {
         };
         
         queryClient.setQueryData(['comments', 'post', postId.value], rollbackData);
-        console.log('🔄 Optimistic comment removed due to error');
       }
     }
     
@@ -1003,7 +988,6 @@ const submitReply = async (parentComment) => {
         };
         
         queryClient.setQueryData(['comments', 'post', postId.value], optimisticData);
-        console.log('⚡ Optimistic reply added to UI');
       }
     }
   }
@@ -1041,20 +1025,10 @@ const submitReply = async (parentComment) => {
           };
           
           queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-          console.log('✅ Reply updated with real data');
         }
       }
     }
-    
-    console.log('✅ Reply created successfully');
-    
-    if (!isAdmin.value) {
-      console.log('📝 Reply submitted and pending approval');
-    }
-    
   } catch (error) {
-    console.error('Reply submission error:', error);
-    
     // Remove optimistic reply on error (only if it was added)
     if (shouldShowOptimistic) {
       const currentDataError = queryClient.getQueryData(['comments', 'post', postId.value]);
@@ -1075,7 +1049,6 @@ const submitReply = async (parentComment) => {
           };
           
           queryClient.setQueryData(['comments', 'post', postId.value], rollbackData);
-          console.log('🔄 Optimistic reply removed due to error');
         }
       }
     }
@@ -1123,7 +1096,7 @@ const submitEdit = async (comment) => {
     editContent.value = '';
     editingComment.value = null;
     
-    // OPTIMIZED: Update comment in cache directly instead of invalidating
+    // Update comment in cache directly instead of invalidating
     const updatedComment = response.data || response;
     const currentData = queryClient.getQueryData(['comments', 'post', postId.value]);
     
@@ -1147,11 +1120,9 @@ const submitEdit = async (comment) => {
       });
       
       queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-      console.log('✅ Comment edit applied instantly');
     }
     
   } catch (error) {
-    console.error('❌ Edit submission error:', error);
     alert('Yorum düzenlenirken bir hata oluştu.');
   } finally {
     isSubmittingEdit.value = false;
@@ -1174,7 +1145,7 @@ const executeDelete = async () => {
   try {
     await CommentService.deleteComment(commentToDelete.value.id);
     
-    // OPTIMIZED: Remove comment from cache directly
+    // Remove comment from cache directly
     const currentData = queryClient.getQueryData(['comments', 'post', postId.value]);
     if (currentData) {
       const deletedId = commentToDelete.value.id;
@@ -1203,19 +1174,16 @@ const executeDelete = async () => {
       }, []);
       
       queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-      console.log('✅ Comment deletion applied instantly');
     }
     
     // Close modal
     cancelDelete();
     
   } catch (error) {
-    console.error('❌ Error deleting comment:', error);
     alert('Yorum silinirken bir hata oluştu.');
   }
 };
 
-// OPTIMIZED: Admin actions with instant cache updates
 const approveComment = async (comment) => {
   try {
     await CommentService.approveComment(comment.id);
@@ -1242,11 +1210,9 @@ const approveComment = async (comment) => {
       });
       
       queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-      console.log('✅ Comment approval applied instantly');
     }
     
   } catch (error) {
-    console.error('❌ Error approving comment:', error);
     alert('Yorum onaylanırken bir hata oluştu.');
   }
 };
@@ -1255,7 +1221,6 @@ const rejectComment = async (comment) => {
   try {
     await CommentService.rejectComment(comment.id);
     
-    // Yorum reddedildikten sonra listeden tamamen kaldır
     const currentData = queryClient.getQueryData(['comments', 'post', postId.value]);
     if (currentData) {
       const updatedData = { ...currentData };
@@ -1276,23 +1241,17 @@ const rejectComment = async (comment) => {
       }, []);
 
       queryClient.setQueryData(['comments', 'post', postId.value], updatedData);
-      console.log('✅ Comment rejection: kaldırıldı');
     }
 
   } catch (error) {
-    console.error('❌ Error rejecting comment:', error);
     alert('Yorum reddedilirken bir hata oluştu.');
   }
 };
 
-// Edit Post Modal Methods
 const openEditModal = async () => {
   try {
-    // Fetch categories
     const categoriesResponse = await CategoryService.getCategories();
     availableCategories.value = categoriesResponse;
-    
-    // Populate form with current post data
     const currentCategoryIds = post.value.categories?.map(cat => cat.id) || [];
     setEditValues({
       title: post.value.title || '',
@@ -1301,14 +1260,12 @@ const openEditModal = async () => {
       coverImage: null
     });
     
-    // Set image preview if exists
     if (post.value.coverImage?.cover) {
       editImagePreview.value = post.value.coverImage.cover;
     }
     
     showEditModal.value = true;
   } catch (error) {
-    console.error('Error opening edit modal:', error);
     alert('Düzenleme modalı açılırken bir hata oluştu.');
   }
 };
@@ -1342,23 +1299,19 @@ const handleEditImageDrop = (event) => {
 };
 
 const processEditImageFile = (file) => {
-  // Validate file type
   const validTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'];
   if (!validTypes.includes(file.type)) {
     alert('Sadece PNG, JPG, JPEG, GIF dosyaları desteklenir.');
     return;
   }
   
-  // Validate file size (2MB)
   if (file.size > 2 * 1024 * 1024) {
     alert('Dosya boyutu 2MB\'dan küçük olmalıdır.');
     return;
   }
   
-  // Set file to form
   setEditFieldValue('coverImage', file);
   
-  // Create preview
   const reader = new FileReader();
   reader.onload = (e) => {
     editImagePreview.value = e.target.result;
@@ -1376,7 +1329,6 @@ const removeEditImage = () => {
 
 const submitPostEdit = async () => {
   if (!editIsValid.value) {
-    // Mark all fields as touched to show validation errors
     Object.keys(editValues).forEach(key => {
       markEditFieldAsTouched(key);
     });
@@ -1386,46 +1338,35 @@ const submitPostEdit = async () => {
   isSubmittingPostEdit.value = true;
   
   try {
-    // Prepare form data
     const formData = new FormData();
     formData.append('title', editValues.title.trim());
     formData.append('content', editValues.content.trim());
-    // Add categories
+
     editValues.categoryIds.forEach((id) => {
       formData.append('categoryIds[]', id);
     });
     
-    // Add cover image if new one is selected
     if (editValues.coverImage) {
       formData.append('coverImage', editValues.coverImage);
     }
-    // Update post
     const response = await PostService.updatePost(post.value.id, formData);
     
-    // Update cached post data
     queryClient.setQueryData(['post', route.params.id], response.data || response);
     
-    // Close modal
     closeEditModal();
-    
-    console.log('✅ Post updated successfully');
-    
   } catch (error) {
-    console.error('❌ Error updating post:', error);
     alert('Yazı güncellenirken bir hata oluştu.');
   } finally {
     isSubmittingPostEdit.value = false;
   }
 };
 
-// Infinite scroll composable
 const { stop: stopScroll } = useInfiniteScroll(() => {
   if (commentsPagination.value.has_more_pages && !commentsLoading.value) {
     loadMoreComments();
   }
 });
 
-// Lifecycle hooks
 onUnmounted(() => {
   stopScroll();
 });
