@@ -313,7 +313,7 @@ const { data: categoriesData, isLoading, error } = useQuery({
   queryFn: () => CategoryService.getCategories(),
 });
 
-const categories = computed(() => categoriesData.value?.data || []);
+const categories = computed(() => categoriesData.value || []);
 
 const filteredCategories = computed(() => {
   let filtered = categories.value;
