@@ -17,7 +17,9 @@ trait ApiResponseTrait
             'message' => $message,
             'data' => $data,
             'timestamp' => now()->toISOString(),
-        ], $statusCode);
+        ], $statusCode)->setEncodingOptions(
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
     }
 
     protected function errorResponse(
@@ -35,7 +37,9 @@ trait ApiResponseTrait
             $response['errors'] = $errors;
         }
 
-        return response()->json($response, $statusCode);
+        return response()->json($response, $statusCode)->setEncodingOptions(
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
     }
 
     protected function paginatedResponse(
@@ -57,7 +61,9 @@ trait ApiResponseTrait
                 'has_more_pages' => $data->hasMorePages(),
             ],
             'timestamp' => now()->toISOString(),
-        ], $statusCode);
+        ], $statusCode)->setEncodingOptions(
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        );
     }
 
     protected function createdResponse(
