@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Middleware\AuthenticateOptional;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -70,7 +71,7 @@ Route::middleware('throttle:120,1')->group(function () {
 // ==================== COMMENT ROUTES ====================
 Route::prefix('comments')->group(function () {
     // Public comment routes
-    Route::get('/post/{postId}', [CommentController::class, 'getPostComments'])->name('comments.post');
+    Route::get('/post/{postId}', [CommentController::class, 'getPostComments'])->middleware(AuthenticateOptional::class);
 
     // Protected comment routes (requires authentication)
     Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
