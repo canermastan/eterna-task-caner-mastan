@@ -1388,7 +1388,6 @@ const submitPostEdit = async () => {
   try {
     // Prepare form data
     const formData = new FormData();
-    formData.append('_method', 'PUT');
     formData.append('title', editValues.title.trim());
     formData.append('content', editValues.content.trim());
     // Add categories
