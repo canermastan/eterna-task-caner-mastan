@@ -13,16 +13,12 @@ class CommentPolicy
     {
     }
 
-    public function view(User $user, Comment $comment): bool
+    public function view(): bool
     {
-        if ($comment->status === CommentStatus::APPROVED) {
-            return true;
-        }
-
-        return $this->authCheck->isOwner($user, $comment) || $this->authCheck->isAdmin($user);
+        return true;
     }
 
-    public function create(User $user): bool
+    public function create(): bool
     {
         return true;
     }
