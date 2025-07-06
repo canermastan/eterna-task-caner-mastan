@@ -12,12 +12,12 @@ class PostPolicy
     {
     }
 
-    public function view(User $user): bool
+    public function view(): bool
     {
         return true;
     }
 
-    public function viewAny(User $user): bool
+    public function viewAny(): bool
     {
         return true;
     }
