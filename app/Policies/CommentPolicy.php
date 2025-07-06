@@ -28,6 +28,11 @@ class CommentPolicy
         return $this->authCheck->isAdmin($user);
     }
 
+    public function create(User $user): bool
+    {
+        return $user->canModerate();
+    }
+
     public function update(User $user): bool
     {
         return $this->authCheck->isAdmin($user);
