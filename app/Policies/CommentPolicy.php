@@ -18,9 +18,14 @@ class CommentPolicy
         return true;
     }
 
-    public function create(User $user): bool
+    public function viewAny(User $user): bool
     {
         return true;
+    }
+
+    public function viewAllComments(User $user): bool
+    {
+        return $this->authCheck->isAdmin($user);
     }
 
     public function update(User $user): bool

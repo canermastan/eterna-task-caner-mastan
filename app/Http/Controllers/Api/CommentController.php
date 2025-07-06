@@ -27,7 +27,7 @@ class CommentController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('approve', Comment::class);
+        $this->authorize('viewAllComments', Comment::class);
 
         $perPage = $request->get('per_page', 50);
         $filters = $request->only(['status', 'user_id', 'parent_id', 'search']);
