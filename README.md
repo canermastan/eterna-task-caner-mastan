@@ -1,4 +1,7 @@
 # Blog Yönetim Sistemi
+
+🚀 **Live Demo:** [https://eterna.canermastan.com](https://eterna.canermastan.com)
+
 ## 🏗️ Mimari Yapı
 
 ### Backend Mimarisi (Laravel 12)
