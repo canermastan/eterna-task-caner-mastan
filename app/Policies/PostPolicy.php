@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Core\Contracts\Policies\AuthorizationCheckContract;
+use App\Core\Enums\PostStatus;
 use App\Models\Post;
 use App\Models\User;
 
@@ -12,8 +13,11 @@ class PostPolicy
     {
     }
 
-    public function view(User $user): bool
+    public function view(?User $user, Post $post): bool
     {
+        if ($post->status == PostStatus::DRAFT) {
+            return $this->authCheck->isOwner($user, $post) || $this->authCheck->isAdmin($user);
+        }
         return true;
     }
 
