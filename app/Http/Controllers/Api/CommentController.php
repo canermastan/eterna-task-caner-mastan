@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Core\Data\Dtos\Comment\CreateCommentDto;
 use App\Core\Data\Dtos\Comment\UpdateCommentDto;
+use App\Core\Data\Dtos\PaginationParametersDto;
 use App\Core\Data\Requests\Comment\StoreCommentRequest;
 use App\Core\Data\Requests\Comment\UpdateCommentRequest;
 use App\Core\Data\Resources\CommentResource;
@@ -12,6 +13,7 @@ use App\Core\Services\CommentService;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Traits\ApiResponseTrait;
+use App\Traits\ValidatesPagination;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,11 +31,10 @@ class CommentController extends Controller
     {
         $this->authorize('viewAllComments', Comment::class);
 
-        $perPage = $request->get('per_page', 50);
-        $page = max(1, (int) $request->get('page', 1));
+        $paginationParameters = PaginationParametersDto::fromRequest($request);
         $filters = $request->only(['status', 'user_id', 'parent_id', 'search']);
 
-        $comments = $this->commentService->getPaginatedComments($perPage, $filters, $page);
+        $comments = $this->commentService->getPaginatedComments($paginationParameters->perPage, $filters, $paginationParameters->page);
 
         return $this->paginatedResponse(CommentResource::collection($comments), "Comments fetched successfully");
     }
@@ -87,12 +88,11 @@ class CommentController extends Controller
 
     public function getPostComments(int $postId, Request $request): JsonResponse
     {
-        $perPage = $request->get('per_page', 15);
-        $page = max(1, (int) $request->get('page', 1));
+        $paginationParameters = PaginationParametersDto::fromRequest($request);
 
         $additionalFilters = $request->only(['status', 'search']);
 
-        $comments = $this->commentService->getPostCommentsWithPagination($postId, $request->user(), $perPage, $additionalFilters, $page);
+        $comments = $this->commentService->getPostCommentsWithPagination($postId, $request->user(), $paginationParameters->perPage, $additionalFilters, $paginationParameters->page);
 
         return $this->paginatedResponse(CommentResource::collection($comments), 'Comments fetched successfully');
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Core\Constants\Pagination;
+use App\Core\Data\Dtos\PaginationParametersDto;
 use App\Core\Data\Dtos\Post\CreatePostDto;
 use App\Core\Data\Dtos\Post\UpdatePostDto;
 use App\Core\Data\Requests\Post\StorePostRequest;
@@ -12,6 +13,7 @@ use App\Core\Services\PostService;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Traits\ApiResponseTrait;
+use App\Traits\ValidatesPagination;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,10 +29,9 @@ class PostController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $perPage = $this->getValidatedPerPage($request);
-        $page = max(1, (int) $request->get('page', 1));
-        
-        $posts = $this->postService->getAllWithPagination($perPage, $page);
+        $paginationParameters = PaginationParametersDto::fromRequest($request);
+
+        $posts = $this->postService->getAllWithPagination($paginationParameters->perPage, $paginationParameters->page);
         return $this->paginatedResponse(PostResource::collection($posts), 'Posts fetched successfully', Response::HTTP_OK);
     }
 
@@ -95,15 +96,9 @@ class PostController extends Controller
     {
         $this->authorize('viewMyPosts', Post::class);
 
-        $perPage = $this->getValidatedPerPage($request);
-        $page = max(1, (int) $request->get('page', 1));
-        $posts = $this->postService->getMyPostsWithPagination($request->user(), $perPage, $page);
-        return $this->paginatedResponse(PostResource::collection($posts), 'My posts fetched successfully', Response::HTTP_OK);
-    }
+        $paginationParameters = PaginationParametersDto::fromRequest($request);
 
-    private function getValidatedPerPage(Request $request): int
-    {
-        $perPage = $request->get('per_page', Pagination::DEFAULT_PER_PAGE);
-        return min(max((int) $perPage, Pagination::MIN_PER_PAGE), Pagination::MAX_PER_PAGE);
+        $posts = $this->postService->getMyPostsWithPagination($request->user(), $paginationParameters->perPage, $paginationParameters->page);
+        return $this->paginatedResponse(PostResource::collection($posts), 'My posts fetched successfully', Response::HTTP_OK);
     }
 }
