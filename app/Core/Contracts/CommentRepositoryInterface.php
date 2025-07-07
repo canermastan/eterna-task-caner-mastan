@@ -18,7 +18,7 @@ interface CommentRepositoryInterface
 
     public function moderateComment(Comment $comment, CommentStatus $status): Comment;
 
-    public function getAllWithPagination(int $perPage = 15, array $filters = []): LengthAwarePaginator;
+    public function getAllWithPagination(int $perPage = 15, array $filters = [], int $page = 1): LengthAwarePaginator;
     
     public function findById(int $id): Comment;
 

@@ -31,11 +31,11 @@ class PostService
         );
     }
 
-    public function getAllWithPagination(int $perPage = 15): LengthAwarePaginator
+    public function getAllWithPagination(int $perPage = 15, int $page = 1): LengthAwarePaginator
     {
-        $cacheKey = Cache::getPostKey("paginated_{$perPage}");
-        return CacheFacade::remember($cacheKey, Cache::getTTL('medium'), function () use ($perPage) {
-            return $this->postRepository->getAllWithPagination($perPage);
+        $cacheKey = Cache::getPostKey("paginated_{$perPage}_page_{$page}");
+        return CacheFacade::remember($cacheKey, Cache::getTTL('medium'), function () use ($perPage, $page) {
+            return $this->postRepository->getAllWithPagination($perPage, $page);
         });
     }
 
@@ -191,9 +191,9 @@ class PostService
         });
     }
 
-    public function getMyPostsWithPagination(User $user, int $perPage = 15): LengthAwarePaginator
+    public function getMyPostsWithPagination(User $user, int $perPage = 15, int $page = 1): LengthAwarePaginator
     {
-        return $this->postRepository->getMyPostsWithPagination($user->id, $perPage);
+        return $this->postRepository->getMyPostsWithPagination($user->id, $perPage, $page);
     }
 
     /**

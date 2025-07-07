@@ -15,7 +15,7 @@ class CommentRepository implements CommentRepositoryInterface
         private Comment $model
     ) {}
 
-    public function getAllWithPagination(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    public function getAllWithPagination(int $perPage = 15, array $filters = [], int $page = 1): LengthAwarePaginator
     {
         $query = $this->model->newQuery()->with([
             'user', 
@@ -51,7 +51,7 @@ class CommentRepository implements CommentRepositoryInterface
         }
 
         return $query->orderBy('created_at', 'desc')
-                    ->paginate($perPage);
+                    ->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function findById(int $id): Comment

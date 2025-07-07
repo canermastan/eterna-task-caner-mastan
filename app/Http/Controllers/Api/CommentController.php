@@ -30,9 +30,10 @@ class CommentController extends Controller
         $this->authorize('viewAllComments', Comment::class);
 
         $perPage = $request->get('per_page', 50);
+        $page = max(1, (int) $request->get('page', 1));
         $filters = $request->only(['status', 'user_id', 'parent_id', 'search']);
 
-        $comments = $this->commentService->getPaginatedComments($perPage, $filters);
+        $comments = $this->commentService->getPaginatedComments($perPage, $filters, $page);
 
         return $this->paginatedResponse(CommentResource::collection($comments), "Comments fetched successfully");
     }
@@ -87,10 +88,11 @@ class CommentController extends Controller
     public function getPostComments(int $postId, Request $request): JsonResponse
     {
         $perPage = $request->get('per_page', 15);
+        $page = max(1, (int) $request->get('page', 1));
 
         $additionalFilters = $request->only(['status', 'search']);
 
-        $comments = $this->commentService->getPostCommentsWithPagination($postId, $request->user(), $perPage, $additionalFilters);
+        $comments = $this->commentService->getPostCommentsWithPagination($postId, $request->user(), $perPage, $additionalFilters, $page);
 
         return $this->paginatedResponse(CommentResource::collection($comments), 'Comments fetched successfully');
     }

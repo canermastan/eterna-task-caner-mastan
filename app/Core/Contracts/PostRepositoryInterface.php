@@ -22,11 +22,11 @@ interface PostRepositoryInterface
 
     public function getAll(): Collection;
 
-    public function getAllWithPagination(int $perPage = 15): LengthAwarePaginator;
+    public function getAllWithPagination(int $perPage = 15, int $page = 1): LengthAwarePaginator;
 
     public function getAllForAdmin(): Collection;
     
-    public function getMyPostsWithPagination(int $userId, int $perPage = 15): LengthAwarePaginator;
+    public function getMyPostsWithPagination(int $userId, int $perPage = 15, int $page = 1): LengthAwarePaginator;
 
     public function toggleDraftPublished(TogglePublishStatusDto $dto): Post;
 

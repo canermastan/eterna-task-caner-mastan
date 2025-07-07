@@ -22,9 +22,9 @@ class CommentService
         private NotificationService $notificationService
     ) {}
 
-    public function getPaginatedComments(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    public function getPaginatedComments(int $perPage = 15, array $filters = [], int $page = 1): LengthAwarePaginator
     {
-        return $this->commentRepository->getAllWithPagination($perPage, $filters);
+        return $this->commentRepository->getAllWithPagination($perPage, $filters, $page);
     }
 
     public function createComment(CreateCommentDto $createDto, User $user): Comment
@@ -89,7 +89,7 @@ class CommentService
         return $moderatedComment;
     }
 
-    public function getPostCommentsWithPagination(int $postId, ?User $user, int $perPage = 15, array $additionalFilters = []): LengthAwarePaginator
+    public function getPostCommentsWithPagination(int $postId, ?User $user, int $perPage = 15, array $additionalFilters = [], int $page = 1): LengthAwarePaginator
     {
         $filters = [
             'post_id' => $postId,
@@ -102,7 +102,7 @@ class CommentService
             $filters['status'] = 'approved';
         }
 
-        return $this->commentRepository->getAllWithPagination($perPage, $filters);
+        return $this->commentRepository->getAllWithPagination($perPage, $filters, $page);
     }
 
     private function determineInitialStatus(User $user): string

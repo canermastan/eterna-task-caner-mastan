@@ -45,12 +45,12 @@ class PostRepository implements PostRepositoryInterface
         return $this->model->with(['categories', 'user'])->get();
     }
 
-    public function getAllWithPagination(int $perPage = 15): LengthAwarePaginator
+    public function getAllWithPagination(int $perPage = 15, int $page = 1): LengthAwarePaginator
     {
         return $this->model->with(['categories', 'user'])
                           ->published()
                           ->orderBy('published_at', 'desc')
-                          ->paginate($perPage);
+                          ->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function getByUserIdWithPagination(int $userId): LengthAwarePaginator
@@ -68,12 +68,12 @@ class PostRepository implements PostRepositoryInterface
                           ->get();
     }
 
-    public function getMyPostsWithPagination(int $userId, int $perPage = 15): LengthAwarePaginator
+    public function getMyPostsWithPagination(int $userId, int $perPage = 15, int $page = 1): LengthAwarePaginator
     {
         return $this->model->with(['categories', 'user'])
                           ->where('user_id', $userId)
                           ->orderBy('created_at', 'desc')
-                          ->paginate($perPage);
+                          ->paginate($perPage, ['*'], 'page', $page);
     }
 
     public function toggleDraftPublished(TogglePublishStatusDto $dto): Post

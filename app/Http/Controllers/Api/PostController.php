@@ -28,7 +28,9 @@ class PostController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = $this->getValidatedPerPage($request);
-        $posts = $this->postService->getAllWithPagination($perPage);
+        $page = max(1, (int) $request->get('page', 1));
+        
+        $posts = $this->postService->getAllWithPagination($perPage, $page);
         return $this->paginatedResponse(PostResource::collection($posts), 'Posts fetched successfully', Response::HTTP_OK);
     }
 
@@ -92,7 +94,8 @@ class PostController extends Controller
         $this->authorize('viewMyPosts', Post::class);
 
         $perPage = $this->getValidatedPerPage($request);
-        $posts = $this->postService->getMyPostsWithPagination($request->user(), $perPage);
+        $page = max(1, (int) $request->get('page', 1));
+        $posts = $this->postService->getMyPostsWithPagination($request->user(), $perPage, $page);
         return $this->paginatedResponse(PostResource::collection($posts), 'My posts fetched successfully', Response::HTTP_OK);
     }
 
