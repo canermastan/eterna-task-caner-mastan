@@ -497,56 +497,38 @@
   </article>
 
   <!-- Delete Comment Modal -->
-  <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-      <!-- Background overlay -->
-      <div 
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-        @click="cancelDelete"
-      ></div>
-
-      <!-- Modal positioning -->
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-      <!-- Modal content -->
-      <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-        <div class="sm:flex sm:items-start">
-          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 15.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-              Yorumu Sil
-            </h3>
-            <div class="mt-2">
-              <p class="text-sm text-gray-500">
-                Bu yorumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
-              </p>
-              <div v-if="commentToDelete" class="mt-3 p-3 bg-gray-50 rounded-md">
-                <p class="text-sm text-gray-600 font-medium">
-                  {{ commentToDelete.user?.first_name }} {{ commentToDelete.user?.last_name }}
-                </p>
-                <p class="text-sm text-gray-500 mt-1 line-clamp-2">
-                  {{ commentToDelete.content }}
-                </p>
-              </div>
-            </div>
+  <div v-if="showDeleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+      <div class="mt-3 text-center">
+        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 48 48">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v9a2 2 0 002 2h8a2 2 0 002-2V9M8 9h8m-8 0h8m0 0V6a1 1 0 011-1h4a1 1 0 011 1v3m-6 0V4" />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900">Yorumu Sil</h3>
+        <div class="mt-2 px-7 py-3">
+          <p class="text-sm text-gray-500">
+            Bu yorumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+          </p>
+          <div v-if="commentToDelete" class="mt-3 p-3 bg-gray-50 rounded-md">
+            <p class="text-sm text-gray-600 font-medium">
+              {{ commentToDelete.user?.first_name }} {{ commentToDelete.user?.last_name }}
+            </p>
+            <p class="text-sm text-gray-500 mt-1 line-clamp-2">
+              {{ commentToDelete.content }}
+            </p>
           </div>
         </div>
-        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-          <button
-            @click="executeDelete"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-          >
-            Sil
-          </button>
+        <div class="flex justify-center gap-4 px-4 py-3">
           <button
             @click="cancelDelete"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+            class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md shadow-sm hover:bg-gray-400 focus:outline-none"
           >
             İptal
+          </button>
+          <button
+            @click="executeDelete"
+            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-red-700 focus:outline-none"
+          >
+            Sil
           </button>
         </div>
       </div>
