@@ -140,3 +140,4 @@ php artisan test
 
 - Mobil cihazlarda bazı ağ veya tarayıcı kısıtlamalarından dolayı anlık mesajlaşma (Reverb) bağlantısı stabil çalışmayabilir. Masaüstü ortamında sorunsuz çalışmaktadır. 
 - Frontend tarafında hızlı geliştirme sürecinden dolayı component-based yapı tercih edilmemiştir. Ancak normalde UI tasarımlarını genelde component-based geliştiririm. Bu proje özelinde tasarım, hızlı üretim amacıyla bu şekilde uygulanmıştır.
+- Notification özelliğinin backend (DB, mail, Reverb) implementasyonu tamamlanmıştır ancak frontend entegrasyonu yapılmamıştır. Backend tarafında tam olarak çalışmaktadır.
