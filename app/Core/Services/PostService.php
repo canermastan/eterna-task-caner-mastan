@@ -225,9 +225,16 @@ class PostService
         CacheFacade::forget(Cache::KEY_POSTS_ALL);
         CacheFacade::forget(Cache::KEY_POSTS_ADMIN_ALL);
         
+        // Clear cache for pagination
+        $perPages = [10, 15, 20, 25, 30];
+        foreach ($perPages as $perPage) {
+            for ($page = 1; $page <= 10; $page++) {
+                CacheFacade::forget(Cache::getPostKey("paginated_{$perPage}_page_{$page}"));
+            }
+        }
+        
         $keysToClear = [
             Cache::getPostKey('all'),
-            Cache::getPostKey('paginated_15'), // Most common pagination
         ];
         
         if ($post) {
