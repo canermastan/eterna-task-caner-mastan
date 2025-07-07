@@ -1331,12 +1331,26 @@ const submitPostEdit = async () => {
     if (editValues.coverImage) {
       formData.append('coverImage', editValues.coverImage);
     }
+    
     const response = await PostService.updatePost(post.value.id, formData);
     
-    queryClient.setQueryData(['post', route.params.id], response.data || response);
+    const updatedPost = response.data || response;
+    
+    queryClient.setQueryData(['post', route.params.id], updatedPost);
+    
+    await queryClient.refetchQueries({ 
+      queryKey: ['post', route.params.id],
+      exact: true 
+    });
+    
+    queryClient.invalidateQueries({ 
+      queryKey: ['my-posts'],
+      exact: false 
+    });
     
     closeEditModal();
   } catch (error) {
+    console.error('Post update error:', error);
     alert('Yazı güncellenirken bir hata oluştu.');
   } finally {
     isSubmittingPostEdit.value = false;
