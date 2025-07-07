@@ -9,6 +9,7 @@ use App\Core\Contracts\PostRepositoryInterface;
 use App\Core\Repositories\CategoryRepository;
 use App\Core\Repositories\CommentRepository;
 use App\Core\Repositories\PostRepository;
+use App\Core\Services\NotificationService;
 use App\Core\Services\Policies\PolicyAuthorizationService;
 use App\Models\Category;
 use App\Models\Comment;
@@ -27,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CommentRepositoryInterface::class, CommentRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);
         $this->app->bind(AuthorizationCheckContract::class, PolicyAuthorizationService::class);
+        
+        $this->app->singleton(NotificationService::class);
     }
 
     public function boot(): void

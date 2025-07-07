@@ -18,7 +18,8 @@ class CommentService
 {
     public function __construct(
         private CommentRepositoryInterface $commentRepository,
-        private PostRepositoryInterface $postRepository
+        private PostRepositoryInterface $postRepository,
+        private NotificationService $notificationService
     ) {}
 
     public function getPaginatedComments(int $perPage = 15, array $filters = []): LengthAwarePaginator
@@ -34,7 +35,10 @@ class CommentService
         $comment = $this->commentRepository->createFromDto($createDto, $user->id, $status);
 
         $comment->load(['user', 'parent']);
+        
+        // if user is admin
         if ($comment->status === 'approved') {
+            $this->notificationService->sendCommentNotification($comment, $post, $comment->user);
             CommentCreated::dispatch($comment, $post);
         }
 
@@ -76,6 +80,7 @@ class CommentService
         $moderatedComment->load(['user', 'post']);
 
         if ($status === CommentStatus::APPROVED) {
+            $this->notificationService->sendCommentNotification($moderatedComment, $moderatedComment->post, $moderatedComment->user);
             CommentCreated::dispatch($moderatedComment, $moderatedComment->post);
         } else {
             CommentDeleted::dispatch($moderatedComment->id, $moderatedComment->post->id);
