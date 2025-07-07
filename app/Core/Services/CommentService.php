@@ -83,7 +83,7 @@ class CommentService
             $this->notificationService->sendCommentNotification($moderatedComment, $moderatedComment->post, $moderatedComment->user);
             CommentCreated::dispatch($moderatedComment, $moderatedComment->post);
         } else {
-            CommentDeleted::dispatch($moderatedComment->id, $moderatedComment->post->id);
+            CommentUpdated::dispatch($moderatedComment, $moderatedComment->post);
         }
 
         return $moderatedComment;
