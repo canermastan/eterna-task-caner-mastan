@@ -195,11 +195,11 @@
                 <div class="flex items-start">
                   <div class="flex-shrink-0">
                     <div 
-                      v-if="post.coverImage"
+                      v-if="post.coverImage.thumb"
                       class="h-12 w-12 rounded-lg overflow-hidden"
                     >
                       <img 
-                        :src="post.coverImage" 
+                        :src="post.coverImage.thumb" 
                         :alt="post.title"
                         class="h-full w-full object-cover"
                       />
