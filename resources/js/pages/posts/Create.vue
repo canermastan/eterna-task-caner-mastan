@@ -280,7 +280,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuery } from '@tanstack/vue-query';
+import { useQuery, useQueryClient } from '@tanstack/vue-query';
 import * as yup from 'yup';
 import { useFormValidation } from '@/composables/useFormValidation';
 import PostService from '@/services/PostService';
@@ -288,6 +288,7 @@ import CategoryService from '@/services/CategoryService';
 import AuthService from '@/services/AuthService';
 
 const router = useRouter();
+const queryClient = useQueryClient();
 
 const validationSchema = yup.object({
   title: yup
@@ -439,6 +440,8 @@ const handleSubmit = async () => {
     if (response.success) {
       success.value = 'Yazı başarıyla yayınlandı!';
       resetFormAndPreview();
+      // Cache'i temizle
+      queryClient.invalidateQueries(['posts']);
       setTimeout(() => {
         router.push('/');
       }, 2000);
