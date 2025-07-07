@@ -23,14 +23,28 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $turkishFirstNames = [
+            'Ahmet', 'Mehmet', 'Ali', 'Mustafa', 'Hasan', 'Hüseyin', 'İbrahim', 'Murat', 'Ömer', 'Yusuf',
+            'Ayşe', 'Fatma', 'Zeynep', 'Emine', 'Hatice', 'Elif', 'Meryem', 'Esra', 'Büşra', 'Selin',
+            'Can', 'Deniz', 'Ege', 'Kaya', 'Mert', 'Burak', 'Emre', 'Serkan', 'Tolga', 'Volkan',
+            'Seda', 'Gizem', 'Merve', 'Derya', 'Sevgi', 'Aylin', 'Pınar', 'Gamze', 'Tuğçe', 'Hande'
+        ];
+
+        $turkishLastNames = [
+            'Yılmaz', 'Demir', 'Çelik', 'Şahin', 'Yıldız', 'Yıldırım', 'Özkan', 'Aydın', 'Özdemir', 'Arslan',
+            'Doğan', 'Kılıç', 'Aslan', 'Çetin', 'Keskin', 'Koç', 'Kurt', 'Özkan', 'Şen', 'Erdoğan',
+            'Aktaş', 'Özkan', 'Kaya', 'Koç', 'Kurt', 'Özkan', 'Şen', 'Erdoğan', 'Aktaş', 'Özkan',
+            'Güneş', 'Yıldız', 'Kaya', 'Koç', 'Kurt', 'Özkan', 'Şen', 'Erdoğan', 'Aktaş', 'Özkan'
+        ];
+
         return [
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
-            'phone' => fake()->unique()->numerify('5#########'), // Turkish mobile format
+            'first_name' => fake()->randomElement($turkishFirstNames),
+            'last_name' => fake()->randomElement($turkishLastNames),
+            'phone' => fake()->unique()->numerify('5#########'),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'phone_verified_at' => fake()->optional(0.7)->dateTime(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => static::$password ??= Hash::make('12345678'),
             'role_id' => 3, // Default: user role
             'is_active' => true,
             'remember_token' => Str::random(10),

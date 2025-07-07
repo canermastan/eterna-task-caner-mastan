@@ -18,12 +18,14 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->sentence(6);
+        $title = fake()->unique()->sentence(6, 10);
+        
+        $contents = fake()->paragraphs(3, true);
 
         return [
             'user_id' => User::factory(),
             'title' => $title,
-            'content' => fake()->paragraphs(5, true),
+            'content' => $contents,
             'slug' => Str::slug($title) . '-' . fake()->unique()->numberBetween(1000, 9999),
             'cover_image' => fake()->optional()->imageUrl(800, 600, 'posts'),
             'status' => fake()->randomElement(['draft', 'published']),

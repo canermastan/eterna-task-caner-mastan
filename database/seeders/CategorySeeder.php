@@ -14,35 +14,49 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Basit kategoriler - sadece name ve slug
         $predefinedCategories = [
             [
-                'name' => 'Technology',
-                'slug' => 'technology',
+                'name' => 'Teknoloji',
+                'slug' => 'teknoloji',
             ],
             [
-                'name' => 'Programming',
-                'slug' => 'programming',
+                'name' => 'Yazılım Geliştirme',
+                'slug' => 'yazilim-gelistirme',
             ],
             [
-                'name' => 'Web Development',
-                'slug' => 'web-development',
+                'name' => 'Web Tasarımı',
+                'slug' => 'web-tasarimi',
             ],
             [
-                'name' => 'Mobile Apps',
-                'slug' => 'mobile-apps',
+                'name' => 'Mobil Uygulamalar',
+                'slug' => 'mobil-uygulamalar',
             ],
             [
-                'name' => 'Design',
-                'slug' => 'design',
+                'name' => 'Tasarım',
+                'slug' => 'tasarim',
             ],
             [
-                'name' => 'Business',
-                'slug' => 'business',
+                'name' => 'İş Dünyası',
+                'slug' => 'is-dunyasi',
+            ],
+            [
+                'name' => 'Eğitim',
+                'slug' => 'egitim',
+            ],
+            [
+                'name' => 'Sağlık',
+                'slug' => 'saglik',
+            ],
+            [
+                'name' => 'Spor',
+                'slug' => 'spor',
+            ],
+            [
+                'name' => 'Yaşam',
+                'slug' => 'yasam',
             ],
         ];
 
-        // Kategorileri oluştur
         foreach ($predefinedCategories as $category) {
             Category::create($category);
         }
