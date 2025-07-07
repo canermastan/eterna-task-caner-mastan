@@ -30,11 +30,23 @@ export default function useAdminComments() {
   });
 
   const invalidateCaches = (comment) => {
+    // Admin comments cache
     queryClient.invalidateQueries({ queryKey: ['admin-comments'] });
+    
+    // General comments cache
     queryClient.invalidateQueries({ queryKey: ['comments'] });
+    
+    // Post-specific comments cache
     if (comment?.post?.id) {
       queryClient.invalidateQueries({ queryKey: ['comments', 'post', comment.post.id] });
     }
+    
+    // Invalidate all comment-related queries
+    queryClient.invalidateQueries({ queryKey: ['comments'] });
+    queryClient.invalidateQueries({ queryKey: ['post-comments'] });
+    
+    // Force refetch
+    queryClient.refetchQueries({ queryKey: ['admin-comments'] });
   };
 
   const approveComment = async (comment) => {
