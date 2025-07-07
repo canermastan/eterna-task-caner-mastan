@@ -43,6 +43,8 @@ class PostController extends Controller
     public function showBySlug(string $slug): JsonResponse
     {
         $post = $this->postService->getBySlug($slug);
+        $this->authorize('view', $post);
+
         return $this->successResponse(new PostResource($post), 'Post fetched successfully');
     }
 

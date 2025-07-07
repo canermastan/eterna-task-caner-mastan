@@ -63,7 +63,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 // Public post routes - SPECIFIC ROUTES BEFORE DYNAMIC ROUTES
 Route::middleware('throttle:120,1')->group(function () {
     Route::get('/posts', [PostController::class, 'index']);
-    Route::get('/posts/slug/{slug}', [PostController::class, 'showBySlug']);
+    Route::get('/posts/slug/{slug}', [PostController::class, 'showBySlug'])->middleware(AuthenticateOptional::class);
     Route::get('/posts/{id}', [PostController::class, 'show']);
 });
 
