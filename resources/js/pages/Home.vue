@@ -190,9 +190,8 @@
             </button>
             
             <!-- Page numbers -->
-            <template v-for="page in Math.min(pagination.last_page, 5)" :key="page">
+            <template v-for="page in visiblePages" :key="page">
               <button
-                v-if="page >= currentPage - 2 && page <= currentPage + 2"
                 @click="goToPage(page)"
                 :class="page === currentPage 
                   ? 'relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
@@ -220,12 +219,17 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useQuery, useQueryClient } from '@tanstack/vue-query';
+import { useRoute, useRouter } from 'vue-router';
 import PostService from '@/services/PostService';
 import AuthService from '@/services/AuthService';
 
-const currentPage = ref(1);
+const route = useRoute();
+const router = useRouter();
+
+// URL'den sayfa numarasını al veya varsayılan olarak 1 kullan
+const currentPage = ref(parseInt(route.query.page) || 1);
 const perPage = ref(15);
 
 const queryClient = useQueryClient();
@@ -252,21 +256,76 @@ const pagination = computed(() => postsData.value?.pagination || {
   per_page: 15,
 });
 
+// Görünür sayfa numaralarını hesapla
+const visiblePages = computed(() => {
+  const totalPages = pagination.value.last_page;
+  const current = currentPage.value;
+  
+  if (totalPages <= 5) {
+    // Toplam 5 sayfa veya daha azsa, hepsini göster
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  
+  // Daha fazla sayfa varsa, akıllı pagination
+  let start = Math.max(1, current - 2);
+  let end = Math.min(totalPages, current + 2);
+  
+  // Başlangıç ve bitiş noktalarını ayarla
+  if (end - start < 4) {
+    if (start === 1) {
+      end = Math.min(totalPages, start + 4);
+    } else {
+      start = Math.max(1, end - 4);
+    }
+  }
+  
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+});
+
 const goToPage = (page) => {
   currentPage.value = page;
+  // URL'yi güncelle
+  router.push({ 
+    query: { 
+      ...route.query, 
+      page: page > 1 ? page : undefined 
+    } 
+  });
 };
 
 const nextPage = () => {
   if (currentPage.value < pagination.value.last_page) {
     currentPage.value++;
+    // URL'yi güncelle
+    router.push({ 
+      query: { 
+        ...route.query, 
+        page: currentPage.value 
+      } 
+    });
   }
 };
 
 const prevPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--;
+    // URL'yi güncelle
+    router.push({ 
+      query: { 
+        ...route.query, 
+        page: currentPage.value > 1 ? currentPage.value : undefined 
+      } 
+    });
   }
 };
+
+// URL'deki sayfa değişikliklerini dinle
+watch(() => route.query.page, (newPage) => {
+  const page = parseInt(newPage) || 1;
+  if (page !== currentPage.value) {
+    currentPage.value = page;
+  }
+});
 
 const truncateContent = (content) => {
   if (!content || typeof content !== 'string') return '';
